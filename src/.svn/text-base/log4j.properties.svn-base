@@ -1,0 +1,19 @@
+log4j.rootLogger=INFO, R, stdout
+ 
+log4j.appender.R=org.apache.log4j.RollingFileAppender
+log4j.appender.R.File=${catalina.base}/logs/jdoilfield_WEB4.log
+log4j.appender.R.MaxFileSize=2048KB
+log4j.appender.R.MaxBackupIndex=2
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=[%-d{dd-MM-yyyy HH:mm:ss}] %-5p %C: %L %M - %m%n
+log4j.appender.R.Threshold=DEBUG
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%5p - (%d{dd-MM-yyyy HH:mm}) - (%F) - %m%n
+
+log4j.additivity.org.hibernate.SQL=false
+log4j.logger.org.hibernate.SQL=DEBUG, stdout
+
+log4j.additivity.com.jdoilfield=false
+log4j.logger.com.jdoilfield=DEBUG, stdout

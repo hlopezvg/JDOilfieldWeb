@@ -1,0 +1,215 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>J&DOilfield Operational System</title>
+    <style type="text/css">
+
+.celdaFirmaCentrada {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: normal;
+	font-family: "Arial";
+	text-transform: normal;
+	color: #000000;
+	background-color: #FFFFFF;
+	text-align: center;
+	display: table-cell;
+}
+.celdaTitulo {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+	font-family: "Arial";
+	text-transform: normal;
+	color: #000000;
+	background-color: #FFFFFF;
+	text-align: left;
+	display: table-cell;
+}
+.celdaTipo {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: normal;
+	font-family: "Arial";
+	text-transform: normal;
+	color: #000000;
+	background-color: #FFFFFF;
+	text-align: left;
+	display: table-cell;
+}
+.piepag {
+	font-family: "Courier New", Courier, mono;
+	font-size: 12px;
+	font-weight: normal;
+}
+.tabla {
+	border: thin solid #000000;
+}
+.titulo {
+	font-weight: bold;
+	font-family: "Arial";
+	font-size: 18px;
+	text-align: left;
+}
+.izquierda {
+  text-align: left; 
+}
+.fuente {
+  font-size: 12px;
+  font-style: normal;
+  font-family: "Arial";	 
+}
+
+	</style>
+</head>
+<body>
+<table width="627" border="0">
+  <tr>
+    <td><img src="http://localhost:8080/JDOilField/images/nuevoLogoJ&D_RIF_encabezado.png" width="100" height="100" alt="Logo JDOilfield"></td>
+    <td width="237">&nbsp;</td>
+    <td width="206">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="170">&nbsp;</td>
+    <td>&nbsp;</td>
+    <td><div align="right"><span class="titulo">FUEL REQUEST</span></div></td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+</table>
+<table width="627" border='1' align="left" cellspacing="0" class="tabla" >
+	<tr>
+	  <td class="celdaTitulo">FR N&ordm;:</td>
+	  <td width="434" class="celdaTipo">${fuelRequest.idFuelRequest}</td>
+  </tr>
+	<tr>
+		<td width="177" class="celdaTitulo">Lugar y Fecha/ Place and Date:</td>
+		<td class="celdaTipo">${fuelRequest.systemDate}</td>
+	</tr>	
+	<tr>
+		<td class="celdaTitulo">Para/To:</td>
+		<td class="celdaTipo">${fuelRequest.providerName}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Attn.: </td>
+		<td class="celdaTipo">#foreach($contact in ${fuelRequest.attention}) 
+								$contact.name <BR>
+            					#end												</td>
+	</tr>
+	
+	<tr>
+		<td class="celdaTitulo">De/From:</td>
+		<td class="celdaTipo">J&D Oilfield International S.A. (IATA Cod.: JDO)</td>
+	</tr>	
+	<tr>
+		<td class="celdaTitulo">Ref.: </td>
+		<td class="celdaTipo">JFG:._ ${fuelRequest.cardcodeClient}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Copia/ Copy: </td>
+		<td class="celdaTipo">J & D Oilfield International S.A</td>
+	</tr>
+	
+	<tr>
+		<td  class="celdaTipo" colspan="2"> 
+<h4 class="celdaTipo">Por favor suministren combustible al siguiente cliente nuestro, en base al contrato que tenemos con: ${fuelRequest.providerName} <br><br>
+
+        Please fuel our following customer with the contract we have with: ${fuelRequest.providerName} </h4>
+</td>
+    </tr>    	
+	<tr>
+		<td class="celdaTitulo">Cliente/ Customer: </td>
+		<td class="celdaTipo">${fuelRequest.cardNameClient}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Cuenta No. / A/C No.:</td>
+		<td class="celdaTipo">${fuelRequest.acNumber}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Fecha/ Date:</td>
+		<td class="celdaTipo">FROM ${fuelRequest.initDate} TO ${fuelRequest.endDate} </td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Lugar/ Locations:</td>
+		<td class="celdaTipo">#foreach($airports in ${fuelRequest.airportFuelRequests}) 
+								$airports.name <BR>
+            					#end	                                          </td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Vuelo (Matr&iacute;culas)/ Flight:</td>
+		<td class="celdaTipo">${fuelRequest.flight}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">E.T.A:</td>
+		<td class="celdaTipo">${fuelRequest.eta}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Hora Local/ Local Time: </td>
+		<td class="celdaTipo">Between 0000 and 2400 Hrs.</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Destino/ Dest.:</td>
+		<td class="celdaTipo">${fuelRequest.destination}</td>
+	</tr>	
+	<tr>
+		<td class="celdaTitulo">Estimado de Suministro/ Uplift:</td>
+		<td class="celdaTipo">${fuelRequest.uplift}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Producto/ Product:</td>
+		<td class="celdaTipo">${fuelRequest.productItemName}</td>
+	</tr>
+	<tr>
+		<td class="celdaTitulo">Observaciones/ Remarks:</td>
+		<td class="celdaTipo">Please Fax Copy of Fuel ticket when the fuel is supply to (058) 212 951 4231 / 953 7530</td>
+	</tr>
+</table> 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="fuente">Atentamente/ Best Regards,</p>
+<p>&nbsp;</p>
+
+<table width="627" align="left" cellspacing="0"  border="1" style="border-top:none; border-right:none; border-left:none; border-bottom:none">
+   <tr  style="border-right:none; border-left:none; border-bottom:none; border-top:none">
+	  <td width="164" style="border-right:none; border-left:none; border-bottom:none; border-top:none" class="celdaFirmaCentrada">&nbsp;</td>
+	  <td width="271" class="celdaFirmaCentrada" style="border-right:none; border-left:none; border-bottom:none" bordercolor="#000000">Gerente de Operaciones <br>
+      Operations Manager </td>
+	  <td width="184" style="border-right:none; border-left:none; border-bottom:none; border-top:none" class="celdaFirmaCentrada">&nbsp;</td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<table width="627" border='1' align="left" cellspacing="0">
+  <tr>
+	  <td width="183" class="celdaFirmaCentrada">3625 NW 82nd Ave. Suite 309 Miami, Fla. 33166. Phone: (305) 4360025/26 Fax: (305) 4360027 jdoifield@bellsouth.net </td>
+	  <td width="233" class="celdaFirmaCentrada">Av. Francisco de Miranda, Torre EASO, Piso 12, Oficina 12 A, El Rosal, Chacao, Edo. Miranda, Caracas, Venezuela. Telf.: (058)212 953.75.30 – 212 951.42.31 Fax: (058)-0424 833 7113</td>
+	  <td width="205" class="celdaFirmaCentrada">Av. Principal de Lechería con Calle el Dorado , Centro Empresarial Lechería, Piso 6, Oficina 605 . Lechería, Edo. Anzoátegui, Venezuela. Telf. (58) 281 418 46 79 venezuela@jdoilfield.com</td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<hr>
+<p class="piepag">
+ESTE DOCUMENTO FUE GENERADO AUTOMATICAMENTE POR JD Mobile System.
+POR FAVOR NO RESPONDER A ESTE CORREO. <br>
+THIS DOCUMENT IS AUTOMATICALLY GENERATED BY JD Mobile System.
+PLEASE DO NOT RESPOND TO THIS MAIL. <br> <br>
+ 
+</p>
+</body>
+</html> 

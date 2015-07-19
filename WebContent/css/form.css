@@ -1,0 +1,167 @@
+/* CSS Document */
+/***********************************************
+* Forms With Style - ? Design Melt Down (www.designmeltdown.com)
+* This notice MUST stay intact for legal use
+* Visit Design Melt Down at http://www.designmeltdown.com/ 
+***********************************************/
+
+form fieldset{
+	background-color:#DFDFDF;
+	
+	border-width:2px;
+	border-style:solid;
+	border-color:#aaaaaa;
+	
+	font-family: Arial, Helvetica, sans-serif;
+  	font-size: 11px;
+	color:#333399;
+	margin:10px 0px 10px 0px;
+	width:700px;
+	position:relative;
+	display:block;
+	padding: 0px 10px 10px 10px;
+}
+
+.fieldsetInterno{
+width:550px;
+}
+
+form fieldset legend{	
+	background-color:#114971;
+	
+	border-width:2px;
+	border-style:solid;
+	border-color:#114971;
+	font-size: 12px;
+	color:#FFFFFF;
+	font-weight:bold;
+	/*font-variant:small-caps;*/
+	/*font-size:110%;*/
+		
+	padding:2px 5px;
+	margin:0px 0px 0px 0px;
+	position:relative;
+	top: -12px;
+	
+}
+	 
+form fieldset legend img{
+	padding:0px 5px 0px 5px;	
+}
+
+label{
+	/*font-size:80%;*/
+	
+	display:block;
+	float:left;
+	width:150px;
+	text-align:right;
+	margin:6px 5px 0px 0px;
+}
+
+input {
+
+	font-size: 11px; 
+	font-family: Arial, Helvetica, sans-serif;
+}
+.inputLarge {
+
+	border: 1px solid #666666;
+	font-size: 11px; 
+	width:300px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+.inputFecha{
+
+	border: 1px solid #666666;
+	size:10px;
+	width:64px;
+	font-size: 11px; 
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+select {
+
+	border: 1px solid #666666;
+	font-size: 11px; 
+	font-family: Arial, Helvetica, sans-serif;
+
+}
+.radio {
+ border: 0px;
+}
+
+.button{
+	background-color:#7171A5;
+	border-width:1px;
+	border-style:solid;
+	border-color:#666666;
+	
+	font-weight:bold;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px; 
+	color: white;
+}
+
+.button:hover {
+    background-color: #FF8331;
+}
+
+textarea{
+
+  border: 1px solid #666666;
+  font-size: 11px;
+  text-align: left;
+  width: 250px;
+  vertical-align : top;
+  direction: ltr;   
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.respuestas {
+	color: /*black;#666666;*/
+  border: 0px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  width: auto;
+  height: 20px;
+  font-weight: bolder;
+  align: center;
+  text-align: center;
+}
+.respuestaM {
+  color: red;
+  border: 0px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+  align: center;
+  text-align: center;
+}
+img.imagen_home{
+position:relative;
+left:-20px;
+top:5px;
+}
+
+#left{
+	position:fixed;
+	left:-60px;
+	top:165px;
+	width: 550px;
+}
+
+#right{
+	position:fixed;
+	left:430px;
+	top:165px;
+	width: 500px;
+}
+
+#botton_wrapper {
+	height: 350px; position:relative;
+}
+
+#img_bottom {
+	position: absolute; bottom:0;
+}

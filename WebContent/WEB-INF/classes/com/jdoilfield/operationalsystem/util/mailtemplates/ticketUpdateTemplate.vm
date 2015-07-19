@@ -1,0 +1,103 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>J&DOilfield Operational System</title>
+    <style type="text/css">
+<!--
+.celdaTipo {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+	text-transform: capitalize;
+	color: #FFFFFF;
+	background-color: #0033CC;
+	text-align: left;
+	display: table-cell;
+}
+.piepag {
+	font-family: "Courier New", Courier, mono;
+	font-size: 12px;
+	font-weight: normal;
+}
+.tabla {
+	background-color: #CCCCCC;
+	border: thin solid #000000;
+}
+.titulo {
+	font-weight: bold;
+	text-align: center;
+}
+-->
+    </style>
+</head>
+<body>
+<h3 class="titulo">J&amp;DOilfield Operational System</h3>
+<h4>Notificacion de Modificaci&oacute;n de Boleta </h4>
+<p>Este mensaje se ha generado autom&aacute;ticamente para informar que se ha modificado la informaci&oacute;n de la boleta con el c&oacute;digo: <strong>${ticket.ticketCode}</strong></p>
+<table width="500" border='1' align="center" cellspacing="0" class="tabla" >
+         <tr>
+           <td class="celdaTipo"><strong>Fecha de registro</strong></td>
+           <td>${ticket.datetimeString}</td>
+         </tr>
+        <tr>
+           <td class="celdaTipo"><strong>Fecha de registro en el m&oacute;vil</strong></td>
+           <td align="left">${ticket.datetimeMobile}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Aeropuerto</strong></td>
+           <td>${ticket.airport.name}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Cliente</strong></td>
+           <td align="left">${ticket.cardnameClient}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Matr&iacute;cula del avi&oacute;n</strong></td>
+           <td align="left">${ticket.airplaneCode}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Proveedor</strong></td>
+           <td align="left">${ticket.cardnameProvider}</td>
+         </tr>
+         
+         <tr>
+           <td class="celdaTipo"><strong>Producto</strong></td>
+           <td align="left">${ticket.itemname}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Cantidad en litros</strong></td>
+           <td align="left">${ticket.quantityLtsString}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Comentarios</strong></td>
+           <td align="left">${ticket.notes}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Estatus</strong></td>
+           <td align="left">${ticket.statusLov.nameItem}</td>
+         </tr>
+         <tr>
+           <td class="celdaTipo"><strong>Tiene Sobregiro?</strong></td>
+           <td align="left">
+					#if ($ticket.overdraftString=='Y')
+  						 Si 
+  					#else
+  						 No 
+					#end
+          </td>
+         </tr>
+
+         <tr>
+           <td class="celdaTipo"><strong>Registrado por</strong></td>
+           <td align="left">${ticket.releasedBy}</td>
+         </tr>
+       </table>
+<p>
+El siguiente paso que usted debe ejecutar es registrar el cambio en su Sistema administrativo.</p>
+
+<hr>
+<p class="piepag">
+ESTE DOCUMENTO FUE GENERADO AUTOMATICAMENTE.POR FAVOR NO RESPONDER A ESTE CORREO <br>
+THIS DOCUMENT IS AUTOMATICALLY GENERATED. PLEASE DO NOT RESPOND TO THIS MAIL </p>
+</body>
+</html>

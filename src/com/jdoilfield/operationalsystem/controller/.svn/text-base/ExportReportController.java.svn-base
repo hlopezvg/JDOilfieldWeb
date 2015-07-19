@@ -1,0 +1,110 @@
+package com.jdoilfield.operationalsystem.controller;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractController;
+
+import com.jdoilfield.operationalsystem.util.Utilities;
+
+public class ExportReportController extends AbstractController {
+	protected HttpSession session;
+
+
+	private static BufferedImage tituloReporte = null;
+	private static BufferedImage encabezadoReporte = null;
+	private Logger logger = LoggerFactory.getLogger(ExportReportController.class);
+
+	protected ModelAndView handleRequestInternal(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		
+		    session = request.getSession();
+		    
+		    
+		    response.setHeader("Expires", "0");
+		    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+		    response.setHeader("Pragma", "public");
+
+		    String extensionType = request.getParameter("output");
+		    //logger.info("request.getParameter: --> " + extensionType);
+		    
+		    String initDate = request.getParameter("initDate");
+		    //logger.info("request.getParameter: --> " + initDate);
+		    
+		    String endDate = request.getParameter("endDate");
+		    //logger.info("request.getParameter: --> " + endDate);
+		    
+		    
+		    
+		    if ((!("pdf".equals(extensionType))) && 
+		      (!("xls".equals(extensionType))) && 
+		      (!("csv".equals(extensionType))))
+		    {
+		    	extensionType = "html";
+		    }
+
+		    StringBuilder fileName = new StringBuilder();
+
+		
+		// Filling the search parameters
+		Map<String, String> searchDate = new HashMap<String, String>();
+		searchDate.put("initDate", initDate);
+		searchDate.put("endDate", endDate);
+		
+		
+		fileName.append(Utilities.formatDate(new Date(), "yyyyMMdd_HHmmss"));
+	    fileName.append(".").append(extensionType);
+	    response.setHeader("content-disposition", "attachment; filename=\"" + fileName + "\"");
+
+
+	    loadImages(request);
+	    
+		
+		/*if (output == null || "".equals(output)) {
+			// return normal view
+			return new ModelAndView("reportTicket", "revenueData",
+					revenueData);
+
+		} else if ("EXCEL".equals(output.toUpperCase())) {
+			// return excel view
+			return new ModelAndView("reportTicket", "revenueData",
+					revenueData);
+
+		} else {
+			// return normal view
+			return new ModelAndView("reportTicket", "revenueData",
+					revenueData);
+
+		}*/
+	    return new ModelAndView("reportTicket", "searchDate",
+	    		searchDate);
+
+	}
+	
+	private synchronized void loadImages(HttpServletRequest request)
+		    throws IOException
+		  {
+		    if ((tituloReporte == null) || (encabezadoReporte == null)) {
+		      this.logger.debug("Cargando imagenes");
+
+		      /*String titleImage = MessageManager.getMensaje(getApplicationContext(), request, "TITLE.REPORT.IMAGE");
+		      String headerImage = MessageManager.getMensaje(getApplicationContext(), request, "HEADER.REPORT.IMAGE");
+		      
+		      tituloReporte = ImageIO.read(ExportReportController.class.getClassLoader().getResource(titleImage));
+		      encabezadoReporte = ImageIO.read(ExportReportController.class.getClassLoader().getResource(headerImage));*/
+		    }
+		  }
+}

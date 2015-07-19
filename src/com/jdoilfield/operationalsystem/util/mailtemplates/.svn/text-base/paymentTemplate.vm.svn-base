@@ -1,0 +1,82 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>J&DOilfield Operational System</title>
+    <style type="text/css">
+<!--
+.celdaTipo {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+	text-transform: capitalize;
+	color: #FFFFFF;
+	background-color: #0033CC;
+	text-align: left;
+	display: table-cell;
+}
+.piepag {
+	font-family: "Courier New", Courier, mono;
+	font-size: 12px;
+	font-weight: normal;
+}
+.tabla {
+	background-color: #CCCCCC;
+	border: thin solid #000000;
+}
+.titulo {
+	font-weight: bold;
+	text-align: center;
+}
+-->
+    </style>
+</head>
+<body>
+<h3 class="titulo">J&amp;DOilfield Operational System</h3>
+<h4>Notificacion de Pago</h4>
+<p>Este mensaje se ha generado autom&aacute;ticamente para informar que se ha registrado un nuevo pago:</p>
+<table width="500" border='1' align="center" cellspacing="0" class="tabla" >
+	<tr>
+		<td class="celdaTipo">Cliente</td>
+		<td>${payment.cardname}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Tipo de Transacci&oacute;n</td>
+		<td>${payment.paymentType}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Numero de Documento</td>
+		<td>${payment.documentNumber}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Banco</td>
+		<td>${payment.bank}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Numero de Cuenta</td>
+		<td>${payment.account}</td>
+	</tr>	
+	<tr>
+		<td class="celdaTipo">Fecha</td>
+		<td>${payment.paymentDateString}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Total</td>
+		<td>${payment.amount}</td>
+	</tr>
+	<tr>
+		<td class="celdaTipo">Tipo de moneda</td>
+		<td>${payment.currency}</td>
+	</tr>
+</table> 
+<p>
+El siguiente paso que usted debe ejecutar es registrar este pago en su Sistema administrativo
+</p>
+
+<hr>
+<p class="piepag">
+ESTE DOCUMENTO FUE GENERADO AUTOMATICAMENTE.
+POR FAVOR NO RESPONDER A ESTE CORREO <br>
+THIS DOCUMENT IS AUTOMATICALLY GENERATED.
+PLEASE DO NOT RESPOND TO THIS MAIL </p>
+</body>
+</html>

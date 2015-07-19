@@ -1,0 +1,677 @@
+package com.jdoilfield.operationalsystem.business;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+
+import com.jdoilfield.operationalsystem.domain.GenericReport;
+import com.jdoilfield.operationalsystem.domain.ResultList;
+import com.jdoilfield.operationalsystem.domain.Search;
+import com.jdoilfield.operationalsystem.domain.local.Airport;
+import com.jdoilfield.operationalsystem.domain.local.FuelRequest;
+import com.jdoilfield.operationalsystem.domain.local.Lov;
+import com.jdoilfield.operationalsystem.domain.local.ProductFuelRequest;
+import com.jdoilfield.operationalsystem.domain.local.ProviderFuelRequest;
+import com.jdoilfield.operationalsystem.domain.remote.BusinessPartner;
+import com.jdoilfield.operationalsystem.domain.remote.Contact;
+import com.jdoilfield.operationalsystem.domain.remote.Product;
+import com.jdoilfield.operationalsystem.persistence.api.AirportDAO;
+import com.jdoilfield.operationalsystem.persistence.api.BusinessPartnerDAO;
+import com.jdoilfield.operationalsystem.persistence.api.FuelRequestDAO;
+import com.jdoilfield.operationalsystem.persistence.api.LovDAO;
+import com.jdoilfield.operationalsystem.persistence.api.ProductDAO;
+import com.jdoilfield.operationalsystem.util.Constants;
+import com.jdoilfield.operationalsystem.util.MessageConstants;
+import com.jdoilfield.operationalsystem.util.Utilities;
+import com.pranical.commons.exceptions.LogicException;
+import com.pranical.commons.exceptions.PersistenceException;
+
+public class FuelRequestManager implements ManagerInterface<FuelRequest>, ReportInterface<FuelRequest> {
+	private AirportDAO airportDao;
+	private FuelRequestDAO fuelRequestDao;
+	private BusinessPartnerDAO businessPartnerDao;
+	private LovDAO lovDao;
+	private ProductDAO productDao;
+	private FuelRequestCronMailManager fuelRequestCronMailManager; 
+	private String result;
+	private FuelRequest fuelRequestSendOrAnnulate;
+	private boolean fuelRequestEmailEnviado;
+	private final static int AC_NUMBER_GROUP_LOV = 6;
+	private static Logger logger = Logger.getLogger(FuelRequestManager.class);
+
+
+	/**
+	 * Retorna una nueva instancia de BusinessPartner.
+	 * 
+	 * @return
+	 */
+	public FuelRequest getNewInstance() {
+
+		return new FuelRequest();
+	}
+
+	public String add(FuelRequest fuelRequest) {
+		return null;
+	}
+
+	/**
+	 * Gestiona la eliminacion de un FuelRequest en el sistema.
+	 * 
+	 * @param r
+	 */
+	public String delete(String id) {
+
+		try {
+
+			fuelRequestDao.InactivateFuelRequest(Integer.valueOf(id), null, FuelRequest.STATUS_CANCELLED);
+			result = MessageConstants.FUEL_REQUEST_DELETE_SUCCESS;
+
+			logger.info("Se ha inactivado el fuel request " + id);
+
+		} catch (PersistenceException e) {
+			logger.error("Ocurrio un error intentar inactivar el fuelrequest= "
+					+ id, e);
+			result = MessageConstants.FUEL_REQUEST_DELETE_ERROR;
+		} catch (Exception e) {
+			logger.error("Ocurrio un error intentar inactivar el fuelrequest= "
+					+ id, e);
+			result = MessageConstants.FUEL_REQUEST_DELETE_ERROR;
+		}
+		return result;
+	}
+
+	public List<FuelRequest> getList() throws LogicException {
+		// TODO Auto-generated method stub
+		System.out.println("En el getList");
+
+		return null;
+	}
+
+	/**
+	 * Retorna una coleccion con las listas requeridas para llenar los combos en
+	 * la vista de agregar o modificar un fuelRequest
+	 * 
+	 * @return Hastable
+	 */
+	public Hashtable<String, Object> loadLists() throws LogicException {
+		Hashtable<String, Object> data = new Hashtable<String, Object>();
+		List<Lov> periodTypes = null;
+
+		try {
+			List<BusinessPartner> provider = businessPartnerDao.findByType(Constants.SUPLIER);
+			List<Product> products = productDao.findAll();
+			List<Lov> acNumbers = lovDao.getValues(AC_NUMBER_GROUP_LOV);
+			periodTypes = lovDao.getValues(Constants.LOV_PERIOD_TYPE);
+			List<Contact> contacts = businessPartnerDao.findAllContacts();
+			List<Airport> airports = airportDao.findAll();
+			
+			data.put("providers", provider);
+			data.put("products", products);
+			data.put("acNumbers", acNumbers);
+			data.put("periodTypes", periodTypes);
+			data.put("contacts", contacts);
+			data.put("airports", airports);
+
+		} catch (PersistenceException e) {
+			logger.error("Ocurrio un error al obtener las listas de los combos de busqueda de los proveedores",	e);
+			throw new LogicException(e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error("Ocurrio un error al obtener las listas de los combos de busqueda de los proveedores",	e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return data;
+	}
+
+	/**
+	 * Retorna una coleccion con las listas requeridas para llenar los combos en
+	 * la vista de busqueda de clientes
+	 * 
+	 * @return
+	 */
+	public Hashtable<String, Object> loadSearchList() throws LogicException {
+		Hashtable<String, Object> data = new Hashtable<String, Object>();
+
+		System.out.println("Ejecutando LoadSearchList");
+
+		try {
+			List<BusinessPartner> clients = businessPartnerDao.findByType(Constants.CUSTOMER);
+			data.put("clients", clients);
+
+		} catch (PersistenceException e) {
+			logger.error("Ocurrio un error al obtener las listas de los combos de busqueda de los clientes",e);
+			throw new LogicException(e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error("Ocurrio un error al obtener las listas de los combos de busqueda de los clientes",e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return data;
+	}
+
+	/**
+	 * Retorna una lista con los fuelRequest que coincidan com los parametros de
+	 * busqueda
+	 * 
+	 * @param s
+	 *            Objeto que encapsula los parametros de b�squeda
+	 * @param index
+	 *            Indice que indica desde donde se realizara la busqueda
+	 * @return
+	 * @throws LogicException
+	 */
+	@SuppressWarnings("unchecked")
+	public com.jdoilfield.operationalsystem.domain.ResultList getResultList(Search s, int page) throws LogicException {
+		List checkBoxList = null;
+		
+		ResultList rlist = new ResultList();
+		
+		List<BusinessPartner> bps= new ArrayList<BusinessPartner>();
+		
+		try{
+			//Validar en este punto que se envia y que se anula a nivel del fuelRequest
+			getAnnulateOrSendableFuelRequest(s.getListFuelRequestId(),s);
+			//Fin envio/annulacion fuelrequests		
+			
+			rlist=fuelRequestDao.findActiveFuelRequest();
+			bps= businessPartnerDao.findAll();
+			
+			System.out.println("valor  del mensaje luego de getAnnulate........... "    +  fuelRequestEmailEnviado);
+			if(rlist != null && fuelRequestEmailEnviado){
+				rlist.setMensaje(MessageConstants.FUEL_SEND_MAIL_SUCCESS);
+				fuelRequestEmailEnviado = false;
+			}
+	
+			if(rlist != null){
+				Iterator it = rlist.getList().iterator();
+			while(it.hasNext()){
+			
+				FuelRequest temp = (FuelRequest)it.next();
+				
+				BusinessPartner tempBP = new BusinessPartner(temp.getCardcodeClient());
+				if(bps.contains(tempBP)){
+					int i= bps.indexOf(tempBP);
+					temp.setBusinessPartner((BusinessPartner)bps.get(i));
+					bps.remove(i);
+				}else
+				{
+					System.out.println("Que pas� aqui??? no deria haber ocurrido esto");
+				}
+			}
+			
+			FuelRequest newOne=null;
+			for(BusinessPartner t : bps){
+				newOne = new FuelRequest();
+				newOne.setCardcodeClient(t.getCardcode());
+				newOne.setBusinessPartner(t);
+			rlist.getList().add(newOne);	
+			}
+			
+			s.setListFuelRequestId(new ArrayList<FuelRequest>());
+			s.getListFuelRequestId().addAll(rlist.getList());
+			}
+		} catch (PersistenceException e) {
+			logger.error("Ocurrio un error al realizar la busqueda de los fuelRequest ",e);
+			throw new LogicException(e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error("Ocurrio un error al realizar la busqueda de los fuelRequest ",e);
+			throw new LogicException(e.getMessage(), e);
+
+		}
+		
+/*		List<BusinessPartner> bp = null;
+		BusinessPartner b = null;
+		System.out.println("Ejecutando la Busqueda");
+		
+		checkBoxList = s.getListBusinessPartner();
+		 		
+		try {
+			if (s.getCodeClient() != null && !s.getCodeClient().equals("0")){
+				rlist = businessPartnerDao.find(s, ((page - 1) * s.getNumRows()));
+			}else{
+				rlist = businessPartnerDao.findAll(s, ((page - 1) * s.getNumRows()));
+			}
+			
+			bp = rlist.getList();
+			
+			//Validar en este punto que se envia y que se anula a nivel del fuelRequest
+			getAnnulateOrSendableFuelRequest(checkBoxList, s, bp);
+			if(fuelRequestEmailEnviado)
+				rlist.setMensaje(MessageConstants.FUEL_SEND_MAIL_SUCCESS);
+			
+			Iterator<BusinessPartner> it = bp.iterator();
+			while (it.hasNext()) {
+				b = it.next();
+				b.setFuelRequest(findActive(b.getCardcode(), b, false, s));
+			}	*/		
+		
+		//Collections.sort(rlist.getList());
+		
+		return rlist;
+	}
+
+	
+	
+	/**
+	 * 
+	 */
+	public FuelRequest getElement(String idFuelRequest) throws LogicException {
+		FuelRequest fuelRequest = null;
+		//Product product = null;
+		System.out.println("en el getElement");
+		
+		
+		try {
+			if(idFuelRequest != null){
+				if  (idFuelRequest.startsWith("CLIENT_")){
+					fuelRequest=new FuelRequest();
+					fuelRequest.setCardcodeClient(idFuelRequest.substring(7));
+					fuelRequest.setBusinessPartner(businessPartnerDao.findById(fuelRequest.getCardcodeClient()));
+					System.out.println("por aqui paso por el PRIMER if del getELement");
+				}else{
+					System.out.println("por aqui paso por el SEGUNDO if del getELement");
+					fuelRequest = fuelRequestDao.findById(new Integer(idFuelRequest));
+					fuelRequest.setBusinessPartner(businessPartnerDao.findById(fuelRequest.getCardcodeClient()));
+					//Attention
+					//fuelRequest.setAttention(businessPartnerDao.findContacts(fuelRequest.getCardcodeClient()));
+					//Product
+					//Product product = productDao.findById(fuelRequest.getProductItemCode()); 
+					//fuelRequest.setProductItemName(product.getItmsgrpnam() != null ? product.getItmsgrpnam() : "not defined");
+					//providerName
+					//fuelRequest.setProviderName((businessPartnerDao.findById(fuelRequest.getCardCodeProvider()).getCardname()));
+					//System.out.println("El nombre del provedor desde el getElement" + 
+					//		(businessPartnerDao.findById(fuelRequest.getCardCodeProvider()).getCardname()));
+				}
+			}
+			
+			
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		
+
+		return fuelRequest;
+	}
+
+	/**
+	 * 
+	 */
+	public String update(FuelRequest fuelRequest) {
+		System.out.println("*************************************");
+		System.out.println("Agregando Fuel Request");
+
+		FuelRequest newFuelRequest = null;
+		try {
+
+			Date now = new Date();
+			GregorianCalendar gc = new GregorianCalendar();
+			int i=0;
+			switch (fuelRequest.getStatus()) {
+
+			case FuelRequest.STATUS_NEW:
+				fuelRequest.setStatus(FuelRequest.STATUS_PROGRAM);
+				break;
+			case FuelRequest.STATUS_PROGRAM:
+
+				System.out.println();
+				System.out.print("Fue inactivado el FR id="
+						+ fuelRequest.getIdFuelRequest());
+				i = fuelRequestDao.InactivateFuelRequest(fuelRequest.getIdFuelRequest(), null, FuelRequest.STATUS_CANCELLED);
+				System.out.println("-->" + i + " filas actualizadas.");
+				newFuelRequest = (FuelRequest) fuelRequest.clone();
+				fuelRequest = newFuelRequest;
+				break;
+			
+				/*
+				 * MOSCA AQUI!!!!!
+				 */
+			case FuelRequest.STATUS_EXEC:
+				System.out.println();
+				System.out.print("Fue inactivado el FR id="
+						+ fuelRequest.getIdFuelRequest());
+				i = fuelRequestDao.InactivateFuelRequest(fuelRequest.getIdFuelRequest(), null, FuelRequest.STATUS_CANCELLED);
+				System.out.println("-->" + i + " filas actualizadas.");
+				newFuelRequest = (FuelRequest) fuelRequest.clone();
+				fuelRequest = newFuelRequest;
+				fuelRequest.setStatus(FuelRequest.STATUS_PROGRAM);
+				break;
+			}
+			//TODO verificar la validacion de los periodos
+		
+		
+			
+			fuelRequest.setIdFuelRequest(null);
+			fuelRequest.setActiveDate(now);
+			fuelRequest.setInactiveDate(null);
+			
+			fuelRequest.setCurrentDatePeriodInit(fuelRequest.getInitDate());
+			scheduleCurrentPeriodEnd(fuelRequest, gc);
+			
+			
+			
+			System.out.println("#_____________________________________________#");
+			System.out.println("");
+			System.out.println("#_____________Agregando los aeropuertos al FR____________#");
+			//fuelRequest.setAirportFuelRequests(new ArrayList<Airport>());
+			fuelRequest.setAirportFuelRequests(new HashSet<Airport>());
+			Airport a=null;
+			for(Airport temp: fuelRequest.getAirportsToAdd().getList()){
+				
+				System.out.println("Recibi el Aeropuerto: " + temp.getId());
+				if(temp.getId()!=null && temp.getId()>0 ){
+					a = airportDao.findById(temp.getId());
+					System.out.println(a.toString());
+					if(a!=null)
+						fuelRequest.getAirportFuelRequests().add(a);
+					else{
+						System.out.println("Que paso???");
+					}
+				}
+			}
+			System.out.println("#_____________________________________________#");
+			System.out.println("#_______Agregando los productsFuelRequest al FR______#");
+			Set<ProductFuelRequest> pfrSet=new HashSet<ProductFuelRequest>();
+			
+			ProductFuelRequest pfr = null;
+			System.out.println("Recibi cantidad de products: "+fuelRequest.getProductsToAdd().getList().size());
+			Iterator<ProductFuelRequest> it = fuelRequest.getProductsToAdd().getList().iterator();
+			while(it.hasNext()){
+				pfr = it.next();
+				if(pfr.getProductID() != null && pfr.getProductID().length() > 0){
+					System.out.println("Recibi el id del Producto asociado al PFR: " + pfr.getProductID());
+					//pfr.setProductFuelRequestId(null);
+					pfr.setFuelRequest(fuelRequest);
+					pfrSet.add(pfr);
+					
+				}
+			}
+			fuelRequest.setProductFuelRequests(pfrSet);
+		
+			
+			System.out.println("#_____________________________________#");
+			System.out.println("#_________Agregando los providerFuelRequest al FR_________#");
+
+			Set<ProviderFuelRequest> providerFuelRequestSet = new HashSet<ProviderFuelRequest>();
+			System.out.println("Recibi cantidad de providers: "+fuelRequest.getProvidersToAdd().getList().size());
+			Iterator<ProviderFuelRequest> iterator = fuelRequest.getProvidersToAdd().getList().iterator();
+			ProviderFuelRequest providerFuelRequest = null; 
+			
+			
+			while(iterator.hasNext()){
+				providerFuelRequest = iterator.next();
+				if(providerFuelRequest.getCardcodeProvider() != null && providerFuelRequest.getCardcodeProvider().length() > 0){
+					System.out.println("Recibi el id del Provider asociado al FRProvider:  " + providerFuelRequest.getCardcodeProvider());
+					//providerFuelRequest.setProviderFuelRequestId(null);
+					providerFuelRequest.setFuelRequest(fuelRequest);
+					providerFuelRequestSet.add(providerFuelRequest);
+				}
+				
+			}
+			
+			fuelRequest.setProviderFuelRequests(providerFuelRequestSet);
+			
+			fuelRequestDao.update(fuelRequest);
+			result = MessageConstants.FUEL_REQUEST_INSERT_SUCCESS;
+		} catch (Exception e) {
+			logger.error("Ocurrio un error al intentar ingresar el fuelRequest: "+ fuelRequest.getIdFuelRequest(), e);
+			e.printStackTrace();
+			result = MessageConstants.FUEL_REQUEST_INSERT_ERROR;
+		}
+		return result;
+	}
+
+	private void scheduleCurrentPeriodEnd(FuelRequest fr, GregorianCalendar gc) {
+
+		gc.setTime(fr.getCurrentDatePeriodInit());
+		switch (fr.getPeriodType()) {
+		case FuelRequest.PERIOD_WEEK:
+			gc.add(Calendar.WEEK_OF_MONTH, 1);
+			break;
+		case FuelRequest.PERIOD_2WEEK:
+			gc.add(Calendar.WEEK_OF_MONTH, 2);
+			break;
+		case FuelRequest.PERIOD_MONTH:
+			gc.add(Calendar.MONTH, 1);
+			break;
+		default:
+			break;
+		}
+
+		fr.setCurrentDatePeriodEnd(gc.getTime());
+	}
+
+	private FuelRequest findActive(String idCodeClient, BusinessPartner bp,	boolean findAirports, Search s) throws LogicException {
+		System.out.println("***___***___***");
+		System.out.println("Paso por el findActive");
+		FuelRequest fuelRequest = null; // new FuelRequest();
+		try {
+
+			fuelRequest = fuelRequestDao.findActiveFuelRequestByClient(idCodeClient, findAirports, s);
+	
+			if (fuelRequest == null) {
+				System.out.println("Nuevo fuelRequest");
+				fuelRequest = new FuelRequest();
+
+			}
+
+			if (bp == null) {
+				bp = businessPartnerDao.findById(idCodeClient);
+			}
+
+			fuelRequest.setBusinessPartner(bp);
+
+
+		} catch (PersistenceException e) {
+			logger.error("Ocurrio un error al realizar la busqueda de los fuelRequest ",e);
+			throw new LogicException(e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error("Ocurrio un error al realizar la busqueda de los fuelRequest ",e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		
+		System.out.println(fuelRequest.toString());
+		return fuelRequest;
+
+	}
+
+
+	private void getAnnulateOrSendableFuelRequest(List<FuelRequest> checkSelected, Search search) throws LogicException{
+		FuelRequest fuelRequestSendAnnulate = null;
+		try {
+			
+				
+		if (checkSelected != null && checkSelected.size() > 0) {
+			for (int i = 0; i < checkSelected.size(); i++) {
+				fuelRequestSendAnnulate = ((FuelRequest) checkSelected.get(i));
+				//En esta seccion anulamos los FR.
+				if(search.getBatchAnnulate() != null &&  search.getBatchAnnulate().trim().equals("Annulate FuelRequest")){
+					if (fuelRequestSendAnnulate.getAnnulateSend() == true ) {
+						modifyStatusBatchFuelRequest(fuelRequestSendAnnulate, FuelRequest.STATUS_CANCELLED);
+					}
+				} 
+				if(search.getBatchAnnulate() != null && search.getBatchAnnulate().trim().equals("Send FuelRequest")){
+					if(fuelRequestSendAnnulate.getAnnulateSend() == true){
+							fuelRequestSendAnnulate = fillLeftFuelRequestFields(fuelRequestSendAnnulate);
+							fuelRequestCronMailManager.sendFuelRequestNotification(fuelRequestSendAnnulate);
+							//Aqui habria que validar que la fecha de asignacion para status_exec este dentro del perido y contrato
+							modifyStatusBatchFuelRequest(fuelRequestSendAnnulate, FuelRequest.STATUS_EXEC);
+							fuelRequestEmailEnviado = true;
+						}
+				}
+			}
+		}
+		} catch (Exception e) {
+			logger.error(e);
+			throw new LogicException("getAnnulateOrSendableFuelRequest ");
+		} 
+	}
+	
+	/**
+	 * Método que anula por lotes los FuelRequest que se seleccionan en la vista
+	 * fuelRequest.jsp
+	 */
+	private void modifyStatusBatchFuelRequest(FuelRequest frAnnulate, int status){
+		if(frAnnulate != null){
+			try {
+				fuelRequestDao.InactivateFuelRequest(frAnnulate.getIdFuelRequest(), frAnnulate, status);
+			} catch (PersistenceException e) {
+				logger.error(e);
+			}
+		}
+	}
+	
+	/**
+	 * Method define for filling de attributes for fuelRequest that depends on 
+	 * querys from another tables besides fuelRequest table
+	 */
+
+	private FuelRequest fillLeftFuelRequestFields(FuelRequest fuelRequest){
+		//System.out.println("Estoy en el fillLeftFR method");
+		BusinessPartner businessPartner;
+		Product product = null;
+		String productName = "";
+		List<Contact> attention = new ArrayList<Contact>(0);
+		fuelRequestSendOrAnnulate = fuelRequest;
+		
+		try{
+			//According from order of appereance from the template
+			////SystemDate
+			DateFormat df = DateFormat.getInstance();
+	        df = new SimpleDateFormat("yyyy-MM-dd");
+			fuelRequestSendOrAnnulate.setSystemDate(df.format(Utilities.parseDateToCalendar(new Date()).getTime()));
+			//providerName
+			if(fuelRequestSendOrAnnulate.getCardCodeProvider() != null){
+				businessPartner = businessPartnerDao.findById(fuelRequestSendOrAnnulate.getCardCodeProvider());
+				fuelRequestSendOrAnnulate.setProviderName(businessPartner.getCardname());
+			}
+			//attention
+			attention = businessPartnerDao.findContacts(fuelRequest.getCardcodeClient());
+			if(attention != null && attention.size() >0){
+				fuelRequestSendOrAnnulate.setAttention(attention);
+			}else{
+				List<Contact> none = new ArrayList<Contact>(1);
+				Contact c = new  Contact();
+				c.setName("not available");
+				none.add(c);
+				fuelRequestSendOrAnnulate.setAttention(none);
+			}
+				
+			//ProductName
+			if(fuelRequestSendOrAnnulate.getProductItemCode() != null){
+				product = productDao.findById(fuelRequestSendOrAnnulate.getProductItemCode()); 
+				productName = (product.getItmsgrpnam() != null ? product.getItmsgrpnam() : "not defined");
+				fuelRequestSendOrAnnulate.setProductItemName(productName);
+			}
+		}catch(PersistenceException e){
+			e.printStackTrace();
+		}
+		
+		return fuelRequestSendOrAnnulate;
+	}
+	
+	/**
+	 * public ResultList getReport(Search s, int page) throws LogicException {
+	 * 
+	 * ResultList rlist= null;
+	 * 
+	 * try { rlist=fuelRequestDao.findFuelRequestByClient(s,
+	 * ((page-1)*s.getNumRows())); } catch (PersistenceException e) { // TODO
+	 * Auto-generated catch block rlist = new ResultList(); e.printStackTrace(fuelRequest.htm);
+	 * }
+	 * 
+	 * return rlist; }
+	 **/
+
+	public GenericReport getExportReport(FuelRequest fr, String type) {
+		return null;
+	}
+
+	public FuelRequestDAO getFuelRequestDao() {
+		return fuelRequestDao;
+	}
+
+	public void setFuelRequestDao(FuelRequestDAO fuelRequestDao) {
+		this.fuelRequestDao = fuelRequestDao;
+	}
+
+	public BusinessPartnerDAO getBusinessPartnerDao() {
+		return businessPartnerDao;
+	}
+
+	public void setBusinessPartnerDao(BusinessPartnerDAO businessPartnerDao) {
+		this.businessPartnerDao = businessPartnerDao;
+	}
+
+	public AirportDAO getAirportDao() {
+		return airportDao;
+	}
+
+	public void setAirportDao(AirportDAO airportDao) {
+		this.airportDao = airportDao;
+	}
+
+	public LovDAO getLovDao() {
+		return lovDao;
+	}
+
+	public void setLovDao(LovDAO lovDao) {
+		this.lovDao = lovDao;
+	}
+
+	public ProductDAO getProductDao() {
+		return productDao;
+	}
+
+	public void setProductDao(ProductDAO productDao) {
+		this.productDao = productDao;
+	}
+
+	
+	
+	public ResultList getReport(Search s, int page) throws LogicException {
+		
+		ResultList rlist= null;
+		
+		try {
+			rlist=fuelRequestDao.findFuelRequestByClient(s, ((page-1)*s.getNumRows()));
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			rlist = new ResultList();
+			e.printStackTrace();
+		}	
+		
+		return rlist;
+	}
+
+	public Hashtable<String, Object> loadLists(FuelRequest e)
+			throws LogicException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Hashtable<String, Object> loadSearchList(FuelRequest searchParam)
+			throws LogicException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public FuelRequestCronMailManager getFuelRequestCronMailManager() {
+		return fuelRequestCronMailManager;
+	}
+
+	public void setFuelRequestCronMailManager(
+			FuelRequestCronMailManager fuelRequestCronMailManager) {
+		this.fuelRequestCronMailManager = fuelRequestCronMailManager;
+	}
+}

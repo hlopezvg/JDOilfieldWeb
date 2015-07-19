@@ -1,0 +1,69 @@
+package com.jdoilfield.operationalsystem.reports;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.view.document.AbstractExcelView;
+
+import com.jdoilfield.operationalsystem.controller.ExportReportController;
+import com.jdoilfield.operationalsystem.domain.local.Ticket;
+import com.jdoilfield.operationalsystem.persistence.api.TicketDAO;
+
+public class ReportTicket extends AbstractExcelView {
+	private TicketDAO ticketDao;
+	private Logger logger = LoggerFactory.getLogger(ReportTicket.class);
+	
+	@Override
+	protected void buildExcelDocument(Map<String, Object> paramMap,
+			HSSFWorkbook paramHSSFWorkbook,
+			HttpServletRequest paramHttpServletRequest,
+			HttpServletResponse paramHttpServletResponse) throws Exception {
+		// TODO Auto-generated method stub
+		@SuppressWarnings("unchecked")
+		Map<String,String> searchDate = (Map<String,String>) paramMap.get("searchDate");
+		// create a wordsheet
+		HSSFSheet sheet = paramHSSFWorkbook.createSheet("Ticket Report");
+
+		HSSFRow header = sheet.createRow(0);
+		header.createCell(0).setCellValue("Ticket");
+		header.createCell(1).setCellValue("VIA");
+		header.createCell(2).setCellValue("Ticket Date");
+		header.createCell(3).setCellValue("User");
+		
+		//Extract the Data from Ticket//
+		List<Ticket> lstTicket = ticketDao.getReportViaWebOrMobile(searchDate.get("initDate"), searchDate.get("endDate"));
+		Iterator<Ticket> it = lstTicket.iterator();
+		
+		
+		int rowNum = 1;
+		Ticket t = new Ticket();
+		while(it.hasNext()) {
+			// create the row data
+			t = it.next();
+			HSSFRow row = sheet.createRow(rowNum++);
+			//logger.info("the code: --> " + t.getTicketCode().toString());
+			//logger.info("VIA: --> " + t.getSourceDeviceId().toString());
+			row.createCell(0).setCellValue(t.getTicketCode().toString());
+			row.createCell(1).setCellValue(t.getSourceDeviceId().toString());
+			row.createCell(2).setCellValue(t.getDatetimeString());
+			row.createCell(3).setCellValue(t.getUser().getUserName().toString());
+		}
+	}
+
+	public TicketDAO getTicketDao() {
+		return ticketDao;
+	}
+
+	public void setTicketDao(TicketDAO ticketDao) {
+		this.ticketDao = ticketDao;
+	}
+}

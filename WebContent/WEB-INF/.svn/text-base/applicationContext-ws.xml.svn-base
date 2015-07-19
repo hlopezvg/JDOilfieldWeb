@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
+		xsi:schemaLocation="
+			http://cxf.apache.org/configuration/security
+	      http://cxf.apache.org/schemas/configuration/security.xsd
+	      http://cxf.apache.org/transports/http/configuration
+	      http://cxf.apache.org/schemas/configuration/http-conf.xsd
+	   		http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+<!-- 	<bean id="servicePayment" class="com.jdoilfield.operationalsystem.persistence.wsclient.ServicePayment"> -->
+<!-- 		<property name="url" value="http://localhost:8080/axis2/services/PaymentServiceManager" /> -->
+<!-- 	</bean> -->
+
+	<bean id="paymentServiceClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+		<property name="serviceClass" value="com.jdoilfield.ws.paymentservice.PaymentServiceInterface" />
+		<property name="address" value="http://localhost:8080/JDOilfieldWS/PaymentService" />
+	</bean>
+	<bean id="paymentServiceClient" class="com.jdoilfield.ws.paymentservice.PaymentServiceInterface"
+		factory-bean="paymentServiceClientFactory" factory-method="create" />
+		
+	<bean id="servicePayment" class="com.jdoilfield.operationalsystem.persistence.wsclient.ServicePayment">
+		<property name="paymentServiceClient" ref="paymentServiceClient" />
+	</bean>
+	
+<!-- DEFINITION FOR TICKET SERVICE -->	
+	<bean id="ticketServiceClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+		<property name="serviceClass" value="com.jdoilfield.ws.ticketservice.TicketServiceInterface" />
+		<property name="address" value="https://localhost:8443/JDOilfieldWS/TicketService" />
+	</bean>
+	<bean id="ticketServiceClient" class="com.jdoilfield.ws.ticketservice.TicketServiceInterface"
+		factory-bean="ticketServiceClientFactory" factory-method="create" />
+		
+	<bean id="serviceTicket" class="com.jdoilfield.operationalsystem.persistence.wsclient.ServiceTicket">
+		<property name="ticketServiceClient" ref="ticketServiceClient" />
+	</bean>
+	
+	<http:conduit name="{http://ticketservice.ws.jdoilfield.com/}TicketServiceManagerService.http-conduit">
+	<http:tlsClientParameters disableCNCheck="true">
+          <sec:keyManagers keyPassword="JD_Sec_2030">
+	          <sec:keyStore type="JKS" password="JD_Sec_2030"
+                   file="j_d_tomcat.jks"/>
+	      </sec:keyManagers>
+      </http:tlsClientParameters>
+      <http:client AutoRedirect="true" Connection="Keep-Alive"/>
+	</http:conduit>
+<!-- END OF DEFINITION FOR TICKET SERVICE -->
+	
+</beans>

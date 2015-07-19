@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+<tiles-definitions>
+	<definition name=".loginTemplate" template="/WEB-INF/templates/login.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="header" value="/WEB-INF/jsp/includes/headerHome.jsp" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+	<definition name=".detailTemplate" template="/WEB-INF/templates/detail.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+
+	<!-- Default Main Template -->
+	<definition name=".mainTemplate" template="/WEB-INF/templates/main.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="header" value="/WEB-INF/jsp/includes/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/jsp/includes/menu.jsp" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+
+	<definition name=".mainExtTemplate" template="/WEB-INF/templates/main-ext.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="header" value="/WEB-INF/jsp/includes/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/jsp/includes/menu.jsp" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+	
+	<definition name=".mainExtEffectTemplate" template="/WEB-INF/templates/main-ext-effect.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="header" value="/WEB-INF/jsp/includes/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/jsp/includes/menu.jsp" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+	
+	<definition name=".basicTemplate" template="/WEB-INF/templates/basic.jsp">
+		<put-attribute name="title" value="::: J &amp; D OILFIELD :::" type="string" />
+		<put-attribute name="header" value="/WEB-INF/jsp/includes/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/jsp/includes/menu.jsp" />
+		<put-attribute name="body" value="/WEB-INF/templates/blank.jsp" />
+	</definition>
+	
+<!-- Default Main Template -->
+
+	<definition name="index" extends=".loginTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
+	</definition>
+
+	<definition name="home" extends=".mainExtEffectTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/home.jsp" />
+	</definition>
+	
+	<definition name="prices" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/prices.jsp" />
+	</definition>
+	
+	<definition name="tickets" extends=".mainExtTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/tickets.jsp" />
+	</definition>
+	<definition name="ticketDetail" extends=".detailTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/ticketDetail.jsp" />
+	</definition>
+	<definition name="ticketUpdate" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/ticketUpdate.jsp" />
+	</definition>
+	<definition name="ticketAdd" extends=".mainExtTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/ticketAdd.jsp" />
+	</definition>
+	<definition name="ticketReport" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/ticketReport.jsp" />
+	</definition>
+	
+	<definition name="accountStmt" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/accountStmt.jsp" />
+	</definition>
+	
+	<definition name="documents" extends=".basicTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/documents.jsp" />
+	</definition>
+	<definition name="documentDetail" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/documentDetail.jsp" />
+	</definition>
+	
+	<definition name="payments" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/payments.jsp" />
+	</definition>
+	<definition name="paymentRegistry" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/paymentRegistry.jsp" />
+	</definition>
+	
+	<definition name="fuelRequest" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/fuelRequest.jsp" />
+	</definition>
+	<definition name="fuelRequestUpdate" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/fuelRequestUpdate.jsp" />
+	</definition>
+	<definition name="fuelRequestHistory" extends=".detailTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/fuelRequestHistory.jsp" />
+	</definition>
+	<definition name="fuelRequestPreview" extends=".detailTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/fuelRequestPreview.jsp" />
+	</definition>
+	
+	<definition name="balances" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/balances.jsp" />
+	</definition>
+	
+	<definition name="airports" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/airports.jsp" />
+	</definition>
+	<definition name="airportAdd" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/airportAdd.jsp" />
+	</definition>
+	<definition name="airportUpdate" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/airportUpdate.jsp" />
+	</definition>
+
+	<definition name="roles" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/roles.jsp" />
+	</definition>
+	<definition name="roleUpdate" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/roleUpdate.jsp" />
+	</definition>
+	
+	<definition name="users" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/users.jsp" />
+	</definition>
+	<definition name="userAdd" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/userAdd.jsp" />
+	</definition>
+	<definition name="userUpdate" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/userUpdate.jsp" />
+	</definition>
+	<definition name="changePassword" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/changePassword.jsp" />
+	</definition>
+	<definition name="forgotPassword" extends=".mainTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/forgotPassword.jsp" />
+	</definition>
+	
+</tiles-definitions>

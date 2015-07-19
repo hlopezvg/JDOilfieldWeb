@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.0.xsd
+                           http://www.springframework.org/schema/security 
+                           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+	<security:authentication-manager>
+		<security:authentication-provider
+			user-service-ref="userService">
+			<security:password-encoder hash="md5"></security:password-encoder>
+		</security:authentication-provider>
+
+	</security:authentication-manager>
+
+	<security:jdbc-user-service id="userService"
+		data-source-ref="dataSourcePostgresql"
+		users-by-username-query="select login ,password,true from public.user where login=? and (operation='I' or operation='U')"
+		authorities-by-username-query="select u.login, r.name from public.user as u, role as r 	where u.role_id = r.id and u.login=? 
+			and (u.operation='I' or u.operation='U')" />
+
+
+	<security:http auto-config="true" access-denied-page="/accessDeniedError.htm">
+		<security:intercept-url pattern="/index.htm" />
+		<security:intercept-url pattern="/forgotPassword.htm" access="ROLE_ADMIN,ROLE_CLIENT,ROLE_OPERATOR, ROLE_CLIENT_OP,ROLE_CHIEF_OP,ROLE_ADMIN_OP,ROLE_COBRANZA" 	
+			requires-channel="https"/>
+
+		<security:intercept-url pattern="/home.htm"
+			access="ROLE_ADMIN,ROLE_CLIENT,ROLE_OPERATOR, ROLE_CLIENT_OP,ROLE_CHIEF_OP,ROLE_ADMIN_OP,ROLE_COBRANZA" 	
+			requires-channel="https" />
+		<security:intercept-url pattern="/balances.htm"
+			access="ROLE_ADMIN" />
+		<security:intercept-url pattern="/user*.htm"
+			access="ROLE_ADMIN" />
+		<security:intercept-url pattern="/ticketUpdate.htm"
+			access="ROLE_ADMIN,ROLE_ADMIN_OP,ROLE_CHIEF_OP" 
+			requires-channel="https"/>
+		
+		<security:intercept-url pattern="/ticketAdd.htm"
+			access="ROLE_ADMIN,ROLE_CLIENT_OP,ROLE_CLIENT,ROLE_CHIEF_OP,ROLE_ADMIN_OP,ROLE_OPERATOR" 
+			requires-channel="https" />
+		
+		<security:intercept-url pattern="/paymentRegistry.htm"
+			access="ROLE_CLIENT,ROLE_CLIENT_OP" />
+		<security:intercept-url pattern="/airport*.htm"
+			access="ROLE_ADMIN,ROLE_CHIEF_OP" />
+		
+		<security:intercept-url pattern="/role*.htm"
+			access="ROLE_ADMIN" 
+			requires-channel="https" />	
+		
+		<security:intercept-url pattern="/tickets.htm"
+			access="ROLE_ADMIN,ROLE_CLIENT_OP,ROLE_CLIENT,ROLE_CHIEF_OP,ROLE_ADMIN_OP,ROLE_OPERATOR,ROLE_CLIENT" 
+			requires-channel="https" />
+		
+		<security:intercept-url pattern="/reportTicket.htm*"
+			access="ROLE_ADMIN,ROLE_ADMIN_OP" 
+			requires-channel="https" />
+		
+			
+		<security:form-login login-page="/index.htm"
+			default-target-url="/home.htm?m=1" authentication-failure-url="/index.htm?login_error=1" />
+		<security:logout logout-url="/signout.htm"
+			logout-success-url="/index.htm" />
+
+		<security:session-management>
+			<security:concurrency-control
+				max-sessions="1" expired-url="/index.htm?login_error=2" />
+		</security:session-management>
+
+
+		<security:port-mappings>
+			<security:port-mapping http="8090" https="8443" />
+			<security:port-mapping http="8080" https="8443" />
+		</security:port-mappings>
+
+	</security:http>
+</beans>

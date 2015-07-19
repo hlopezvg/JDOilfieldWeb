@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	 xsi:schemaLocation="  
+           http://www.springframework.org/schema/beans 
+           classpath:/org/springframework/beans/factory/xml/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/tx
+           classpath:/org/springframework/transaction/config/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/context  
+           classpath:/org/springframework/context/config/spring-context-3.0.xsd">
+           
+	<!-- <context:property-placeholder location="classpath:jdbc-${env}.properties" />  -->
+	
+	<bean id="priceManager" class="com.jdoilfield.operationalsystem.business.PriceManager">
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="productDao">
+			<ref bean="productDao" />
+		</property>
+		<property name="priceDao">
+			<ref bean="priceDao" />
+		</property>
+	</bean>
+	
+	<bean id="ticketManager" class="com.jdoilfield.operationalsystem.business.TicketManager">
+		<property name="ticketDao">
+			<ref bean="ticketDao" />
+		</property>
+		<property name="ticketHistoryDao">
+			<ref bean="ticketHistoryDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="lovDao">
+			<ref bean="lovDao" />
+		</property>
+		<property name="airportDao">
+			<ref bean="airportDao" />
+		</property>
+		<property name="productDao">
+			<ref bean="productDao" />
+		</property>
+		<property name="userDao">
+			<ref bean="userDao" />
+		</property>
+		<property name="mailSender">
+			<ref bean="springMailSender" />
+		</property>
+		<property name="airplaneDao">
+			<ref bean="airplaneDao" />
+		</property>
+		<property name="serviceTicket">
+			<ref bean="serviceTicket" />
+		</property>
+		<property name="iataInvoiceDao">
+			<ref bean="iataInvoiceDao" />
+		</property>
+		<property name="fuelCardDao">
+			<ref bean="fuelCardDao" />
+		</property>
+	</bean>
+	
+	<bean id="accountStmtManager" class="com.jdoilfield.operationalsystem.business.AccountStmtManager">
+		<property name="accountStmtDao">
+			<ref bean="accountStmtDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="lovDao">
+			<ref bean="lovDao" />
+		</property>
+	</bean>
+	
+	<bean id="documentManager" class="com.jdoilfield.operationalsystem.business.DocumentManager">
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="lovDao">
+			<ref bean="lovDao" />
+		</property>
+		<property name="documentDao">
+			<ref bean="documentDao" />
+		</property>
+		<property name="documentTypeDao">
+			<ref bean="documentTypeDao" />
+		</property>
+	</bean>
+	
+	<bean id="paymentManager" class="com.jdoilfield.operationalsystem.business.PaymentManager">
+		<property name="accountDao">
+			<ref bean="accountDao" />
+		</property>
+		<property name="bankDao">
+			<ref bean="bankDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="currencyDao">
+			<ref bean="currencyDao" />
+		</property>
+		<property name="documentDao">
+			<ref bean="documentDao" />
+		</property>
+		<property name="lovDao">
+			<ref bean="lovDao" />
+		</property>
+		<property name="paymentDao">
+			<ref bean="paymentDao" />
+		</property>
+		<property name="remotePaymentDao">
+			<ref bean="remotePaymentDao" />
+		</property>
+		<property name="mailSender">
+			<ref bean="springMailSender" />
+		</property>
+		<property name="servicePayment">
+			<ref bean="servicePayment" />
+		</property>
+	</bean>
+	
+	<bean id="fuelRequestManager" class="com.jdoilfield.operationalsystem.business.FuelRequestManager">
+		<property name="lovDao">
+			<ref bean="lovDao" />
+		</property>
+		<property name="airportDao">
+			<ref bean="airportDao" />
+		</property>
+		<property name="productDao">
+			<ref bean="productDao" />
+		</property>
+		<property name="fuelRequestDao">
+			<ref bean="fuelRequestDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="fuelRequestCronMailManager">
+			<ref bean="fuelRequestCronMailManager" />
+		</property>
+	</bean>
+	
+	<bean id="balanceManager" class="com.jdoilfield.operationalsystem.business.BalanceManager">
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+	</bean>
+	
+	<bean id="airportManager" class="com.jdoilfield.operationalsystem.business.AirportManager">
+		<property name="airportDao">
+			<ref bean="airportDao" />
+		</property>
+	</bean>
+	
+	<bean id="roleManager" class="com.jdoilfield.operationalsystem.business.RoleManager">
+		<property name="roleDao">
+			<ref bean="roleDao" />
+		</property>
+		<property name="componentDao">
+			<ref bean="componentDao" />
+		</property>
+		<property name="roleComponentDao">
+			<ref bean="roleComponentDao" />
+		</property>
+	</bean>
+	
+	<bean id="userManager" class="com.jdoilfield.operationalsystem.business.UserManager">
+		<property name="userDao">
+			<ref bean="userDao" />
+		</property>
+		<property name="roleDao">
+			<ref bean="roleDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="mailSender">
+			<ref bean="springMailSender" />
+		</property>
+	</bean>
+	
+	<bean id="fuelCardManager" class="com.jdoilfield.operationalsystem.business.FuelCardManager">
+		<property name="fuelCardDao">
+			<ref bean="fuelCardDao" />
+		</property>
+		<property name="airplaneDao">
+			<ref bean="airplaneDao" />
+		</property>
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+		<property name="serviceFuelCard">
+			<ref bean="serviceFuelCard" />
+		</property>
+	</bean>
+	
+
+	<!-- BEANS QUE CONTIENEN LA LOGICA DE NEGOCIO -->
+
+	<bean id="businessPartnerManager" class="com.jdoilfield.operationalsystem.business.BusinessPartnerManager">
+		<property name="businessPartnerDao">
+			<ref bean="businessPartnerDao" />
+		</property>
+	</bean>
+	
+	<bean id="fuelRequestCronMailManager" class="com.jdoilfield.operationalsystem.business.FuelRequestCronMailManager">
+		<property name="contactDao">
+			<ref bean="contactDao" />
+		</property>
+		<property name="fuelRequestDao">
+			<ref bean="fuelRequestDao" />
+		</property>
+		<property name="mailSender">
+			<ref bean="springMailSender" />
+		</property>
+	</bean>
+	
+	<!-- BEANS QUE CONTIENEN LA CONFIGURACION DEL QUARTZ -->
+	<bean id="fuelRequestCronMail" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.jdoilfield.operationalsystem.business.FuelRequestCronMailManager" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="fuelRequestDao">
+					<ref bean="fuelRequestDao" />
+				</entry>
+				<entry key="mailSender">
+					<ref bean="springMailSender" />
+				</entry>
+				<entry key="businessPartnerDao">
+					<ref bean="businessPartnerDao" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="fuelRequestCronMail" />
+		<!-- Se ejecuta todos los dias a las 2 AM -->
+		<!-- formato: seg minuts horas dia semana año -->
+		<property name="cronExpression" value="0 01-59 00-23 * * ?" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+	</bean>
+	<!--  -->
+	<bean id="reportTicket" 
+		class="com.jdoilfield.operationalsystem.reports.ReportTicket">
+		<property name="ticketDao">
+			<ref bean="ticketDao" />
+		</property>
+		<property name="domesticClientReportDao">
+			<ref bean="domesticClientReportDao" />
+		</property>
+		<property name="consumerReportDao">
+			<ref bean="consumerReportDao" />
+		</property>
+	</bean>
+   <!--IATA INVOICE  -->
+	<bean id="generateIATAXMLInvoice_2_0_2" 
+		class="com.jdoilfield.operationalsystem.iata.GenerateIATAXMLInvoice_2_0_2">
+	    <property name="iataInvoiceDao">
+			<ref bean="iataInvoiceDao" />
+		</property>
+	</bean>
+	<!--END OF IATA INVOICE  -->
+	
+	<!--<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"> <property name="basenames"> 
+		<list> <value>properties/messages</value> <value>properties/labels</value> <value>config</value> </list> </property> 
+		</bean> -->
+</beans>

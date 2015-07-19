@@ -1,0 +1,292 @@
+package com.jdoilfield.operationalsystem.business;
+
+import com.jdoilfield.operationalsystem.domain.ResultList;
+import com.jdoilfield.operationalsystem.domain.Search;
+import com.jdoilfield.operationalsystem.domain.local.Role;
+import com.jdoilfield.operationalsystem.domain.local.User;
+import com.jdoilfield.operationalsystem.persistence.api.BusinessPartnerDAO;
+import com.jdoilfield.operationalsystem.persistence.api.RoleDAO;
+import com.jdoilfield.operationalsystem.persistence.api.UserDAO;
+import com.jdoilfield.operationalsystem.util.SpringMailSender;
+import com.jdoilfield.operationalsystem.util.Utilities;
+import com.pranical.commons.exceptions.LogicException;
+import com.pranical.commons.exceptions.PersistenceException;
+import java.util.Hashtable;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class UserManager
+  implements ManagerInterface<User>
+{
+  private UserDAO userDao;
+  private RoleDAO roleDao;
+  private BusinessPartnerDAO businessPartnerDao;
+  private SpringMailSender mailSender;
+  protected final Logger logger = LoggerFactory.getLogger(UserManager.class);
+  private String result;
+
+  public String add(User u)
+  {
+    boolean noSupervisor = false;
+    try {
+      if (!(this.userDao.existUser(u)))
+      {
+        Role r = new Role();
+        r.setId(u.getRoleId());
+        u.setRole(r);
+        u.setPassword(Utilities.MD5(u.getPassword()));
+
+        if (u.getClientCode().length() == 0) {
+          u.setClientCode(null);
+        }
+        if ((u.getIdSupervisor() != null) && (u.getIdSupervisor().intValue() == 0)) {
+          u.setIdSupervisor(null);
+          noSupervisor = true;
+        }
+
+        this.userDao.add(u);
+        if (noSupervisor) {
+          u.setIdSupervisor(Integer.valueOf(u.getId()));
+          this.userDao.update(u);
+        }
+        this.result = "success.insert.user";
+
+        this.logger.info("Se ha insertado el usuario: " + u.getLogin()); break label252:
+      }
+
+      this.result = "error.user.login.exist";
+    }
+    catch (PersistenceException e)
+    {
+      this.logger.error("Ocurrio un error al intentar ingresar el usuario: " + u.getLogin() + "a la BD", e);
+      this.result = "errors.insert.user";
+    }
+    catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar ingresar el usuario: " + u.getLogin() + "a la BD", e);
+      this.result = "errors.insert.user";
+    }
+
+    label252: return this.result;
+  }
+
+  public String update(User u)
+  {
+    try
+    {
+      if (!(this.userDao.existUser(u)))
+      {
+        if (u.getClientCode().length() == 0) {
+          u.setClientCode(null);
+        }
+
+        if ((u.getIdSupervisor() != null) && (u.getIdSupervisor().intValue() == 0)) {
+          u.setIdSupervisor(Integer.valueOf(u.getId()));
+        }
+
+        this.logger.debug(u.toString());
+        if ((u.getNewPassword1() != null) && (!(u.getNewPassword1().isEmpty())))
+          u.setPassword(Utilities.MD5(u.getNewPassword1()));
+        else {
+          this.logger.debug(u.toString());
+        }
+
+        this.logger.debug(u.toString());
+        u.setOperation('U');
+
+        this.userDao.update(u);
+        this.result = "success.update.user";
+
+        this.logger.info("Se ha modificado el usuario: " + u.getLogin()); break label273:
+      }
+
+      this.result = "error.user.login.exist";
+    }
+    catch (PersistenceException e)
+    {
+      this.logger.error("Ocurrio un error al intentar actualizar el usuario: " + u.getLogin() + "a la BD", e);
+      this.result = "errors.update.user";
+    } catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar actualizar el usuario: " + u.getLogin() + "a la BD", e);
+      this.result = "errors.update.user";
+    }
+
+    label273: return this.result;
+  }
+
+  public String delete(String id)
+  {
+    try
+    {
+      this.userDao.remove(Integer.valueOf(Integer.parseInt(id)));
+
+      this.result = "success.delete.user";
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar eliminar el usuario: " + id, e);
+      this.result = "errors.delete.user";
+    } catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar eliminar el usuario: " + id, e);
+      this.result = "errors.delete.user";
+    }
+    return this.result;
+  }
+
+  public User getElement(String id)
+    throws LogicException
+  {
+    User user = null;
+    this.logger.debug("Buscando el usuario con id=" + id);
+    try {
+      user = (User)this.userDao.findById(Integer.valueOf(Integer.parseInt(id)));
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar consultar el usuario: " + id, e);
+      throw new LogicException(e.getMessage(), e);
+    } catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar consultar el usuario: " + id, e);
+      throw new LogicException(e.getMessage(), e);
+    }
+    return user;
+  }
+
+  public ResultList getResultList(Search s, int page)
+    throws LogicException
+  {
+    ResultList userList = null;
+    try
+    {
+      userList = this.userDao.find(s, Integer.valueOf((page - 1) * s.getNumRows()));
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar realizar la busqueda de los usuarios", e);
+      throw new LogicException(e.getMessage(), e);
+    } catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar realizar la busqueda de los usuarios", e);
+      throw new LogicException(e.getMessage(), e);
+    }
+    return userList;
+  }
+
+  public List<User> getList()
+    throws LogicException
+  {
+    List list = null;
+    try
+    {
+      list = this.userDao.findAll();
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar obtener la lista de usuarios", e);
+      throw new LogicException(e.getMessage(), e);
+    }
+    return list;
+  }
+
+  public Hashtable<String, Object> loadLists()
+    throws LogicException
+  {
+    Hashtable data = new Hashtable();
+    try
+    {
+      List roles = this.roleDao.findAll();
+
+      List partners = this.businessPartnerDao.findByType("Cliente");
+
+      List supervisors = this.userDao.findByRole(Integer.valueOf(5));
+
+      data.put("roles", roles);
+      data.put("partners", partners);
+      data.put("supervisors", supervisors);
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar obtener las listas de los combos de la vista ingresar o modificar Usuario ", e);
+      throw new LogicException(e.getMessage(), e);
+    }
+    return data;
+  }
+
+  public Hashtable<String, Object> loadSearchList()
+    throws LogicException
+  {
+    Hashtable data = new Hashtable();
+
+    List roles = null;
+    try
+    {
+      roles = this.roleDao.findAll();
+      data.put("roles", roles);
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar obtener las listas de los combos de busqueda de Usuarios", e);
+      throw new LogicException(e.getMessage(), e);
+    }
+    return data;
+  }
+
+  public String changePassword(User u, String password, String newpassword)
+  {
+    try
+    {
+      if (u.getPassword().equals(Utilities.MD5(password))) {
+        this.userDao.changePassword(u.getId(), Utilities.MD5(newpassword));
+        this.result = "success.update.password"; break label134:
+      }
+      this.result = "errors.notmatch.password";
+    }
+    catch (PersistenceException e)
+    {
+      this.logger.error("Ocurrio un error al intentar cambiar el password del usuario: " + u.getId(), e);
+      this.result = "errors.update.password";
+    } catch (Exception e) {
+      this.logger.error("Ocurrio un error al intentar cambiar el password del usuario: " + u.getId(), e);
+      this.result = "errors.update.password";
+    }
+    label134: return this.result;
+  }
+
+  public User findByUserName(String username) throws LogicException
+  {
+    User u = null;
+    try
+    {
+      u = this.userDao.findByUserName(username);
+    }
+    catch (PersistenceException e) {
+      this.logger.error("Ocurrio un error al intentar obtener la informacion de usuario del login: " + username, e);
+    }
+
+    return u;
+  }
+
+  public User getNewInstance()
+    throws LogicException
+  {
+    return new User();
+  }
+
+  public UserDAO getUserDao() {
+    return this.userDao; }
+
+  public void setUserDao(UserDAO userDao) {
+    this.userDao = userDao; }
+
+  public RoleDAO getRoleDao() {
+    return this.roleDao; }
+
+  public void setRoleDao(RoleDAO roleDao) {
+    this.roleDao = roleDao; }
+
+  public BusinessPartnerDAO getBusinessPartnerDao() {
+    return this.businessPartnerDao; }
+
+  public void setBusinessPartnerDao(BusinessPartnerDAO businessPartnerDao) {
+    this.businessPartnerDao = businessPartnerDao; }
+
+  public SpringMailSender getMailSender() {
+    return this.mailSender; }
+
+  public void setMailSender(SpringMailSender mailSender) {
+    this.mailSender = mailSender;
+  }
+}

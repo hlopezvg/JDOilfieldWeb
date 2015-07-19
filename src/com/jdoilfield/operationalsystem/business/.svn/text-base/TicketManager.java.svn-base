@@ -1,0 +1,456 @@
+package com.jdoilfield.operationalsystem.business;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jdoilfield.operationalsystem.domain.ResultList;
+import com.jdoilfield.operationalsystem.domain.Search;
+import com.jdoilfield.operationalsystem.domain.local.Airport;
+import com.jdoilfield.operationalsystem.domain.local.Lov;
+import com.jdoilfield.operationalsystem.domain.local.Ticket;
+import com.jdoilfield.operationalsystem.domain.local.User;
+import com.jdoilfield.operationalsystem.domain.remote.Airplane;
+import com.jdoilfield.operationalsystem.domain.remote.BusinessPartner;
+import com.jdoilfield.operationalsystem.domain.remote.Product;
+import com.jdoilfield.operationalsystem.persistence.api.AirplaneDAO;
+import com.jdoilfield.operationalsystem.persistence.api.AirportDAO;
+import com.jdoilfield.operationalsystem.persistence.api.BusinessPartnerDAO;
+import com.jdoilfield.operationalsystem.persistence.api.LovDAO;
+import com.jdoilfield.operationalsystem.persistence.api.ProductDAO;
+import com.jdoilfield.operationalsystem.persistence.api.TicketDAO;
+import com.jdoilfield.operationalsystem.persistence.api.UserDAO;
+import com.jdoilfield.operationalsystem.persistence.wsclient.ServiceTicket;
+import com.jdoilfield.operationalsystem.util.Constants;
+import com.jdoilfield.operationalsystem.util.MessageConstants;
+import com.jdoilfield.operationalsystem.util.SpringMailSender;
+import com.jdoilfield.operationalsystem.util.Utilities;
+import com.jdoilfield.ws.ticketservice.domain.MobileTicket;
+import com.pranical.commons.exceptions.LogicException;
+import com.pranical.commons.exceptions.PersistenceException;
+
+/**
+ * Realiza las  operaciones de negocio relacionadas con la Consulta de Tickets, 
+ * e invoca a los metodos de persistencia para realizar dichas operaciones.
+ * @author Mary
+ */
+public class TicketManager implements ManagerInterface<Ticket> {
+	
+	private TicketDAO ticketDao;
+	//private RemoteTicketDAO remoteTicketDao;
+	private BusinessPartnerDAO businessPartnerDao;	
+	private LovDAO lovDao;	
+	private ProductDAO productDao;
+	private AirportDAO airportDao;	
+	private AirplaneDAO airplaneDao; 
+	private UserDAO userDao;	
+	private SpringMailSender mailSender;	
+	private ServiceTicket serviceTicket;
+	
+	protected final Logger logger = LoggerFactory.getLogger(TicketManager.class);
+	public Ticket getNewInstance() throws LogicException{
+		
+		return new Ticket();
+	}
+	
+	/**	
+	 * Agrega un nuevo ticket mediante la invocacion del servicio del mismo servicio
+	 * que se usa para los mobiles
+	 * @return
+	 */
+	
+	public String add(Ticket ticket) {
+		String result = null;
+		String responseErrorCode = null;
+		try {
+			//Fill the mobile Ticket with the Ticket Data came from the jsp and then call the service
+			responseErrorCode = serviceTicket.addTicket(fillMobileTicketData(ticket));
+			
+			if(responseErrorCode.equals(Constants.TICKET_ALREADY_EXIST)){
+				result =  MessageConstants.TICKET_ALREADY_EXIST;
+			}
+			if(responseErrorCode.equals(Constants.TICKET_OK)) {
+				result =  MessageConstants.TICKET_ADD_SUCCESS;
+			}
+			
+			if(responseErrorCode.equals(Constants.TICKET_NOT_SAVED_TICKET_LOCAL)){
+				result =  MessageConstants.TICKET_ADD_ERROR_LOCAL;
+			}
+			if(responseErrorCode.equals(Constants.TICKET_NOT_SAVED_TICKET_REMOTE)){
+				result =  MessageConstants.TICKET_ADD_ERROR_REMOTE;
+			}
+			
+		} catch (Throwable e) {
+			  e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/*
+	 * 
+	 */
+	private MobileTicket fillMobileTicketData(Ticket ticket){
+		MobileTicket mobileTicket = new MobileTicket();
+		
+		
+
+		mobileTicket.setTicketCode(ticket.getTicketCode());
+		mobileTicket.setCardCodeClient(ticket.getClientCode());
+		mobileTicket.setCardNameClient(ticket.getCardnameClient());
+		//status
+		//overdraft
+		//mobileTicket.setDateTime(Utilities.formatDate(new Date(), "yyyy-MM-dd hh:mm:ss"));
+		
+		mobileTicket.setDateTime(ticket.getDatetimeString());
+		
+		mobileTicket.setCardCodeProvider(ticket.getProviderCode());
+		mobileTicket.setCardNameProvider(ticket.getCardnameProvider());
+		mobileTicket.setAirportId(ticket.getAirportId());
+		mobileTicket.setAirplaneCode(ticket.getAirplaneCode());
+		mobileTicket.setItemCode(ticket.getProductCode());
+		mobileTicket.setItemName(ticket.getItemname());
+		mobileTicket.setQuantityLts(ticket.getQuantityLtsString());
+		mobileTicket.setQuantityGal(Utilities.convertLtsToGals(ticket.getQuantityLtsString()));
+		//Esto fue modificado para el ejemplo de ENERGIZAR, donde se comento para que funcionara la opcion de litros
+		//mobileTicket.setQuantityGal(Utilities.convertLtsToGals(ticket.getQuantityLtsString()));
+		mobileTicket.setNotes(ticket.getNotes());
+		mobileTicket.setReleaseBy(ticket.getReleasedBy());
+		//Esto viene a definir el usuario que inserto la boleta
+		mobileTicket.setUserId(ticket.getUser().getId());
+		
+		
+		
+		
+		mobileTicket.setNewAirplane("N");
+		mobileTicket.setNewAirplaneCode(ticket.getNewAirplaneCode());
+		//
+		//mobileTicket.setTicketIdMobile(ticket.getTicketIdMobile());
+		mobileTicket.setTicketIdMobile(Integer.valueOf("1"));
+		//
+		logger.info("********Ticket Data Via Web Component*********");
+		logger.info("TicketCode: " + ticket.getTicketCode());
+		logger.info("ClientCode: " + ticket.getClientCode());
+		logger.info("CardName: " + ticket.getCardnameClient());
+		logger.info("ProviderCode: " + ticket.getProviderCode());
+		logger.info("ProviderName: " + ticket.getCardnameProvider());
+		logger.info("AirportID: " + ticket.getAirportId());
+		logger.info("AirplaneCode: " + ticket.getAirplaneCode());
+		logger.info("ProductCode: " + ticket.getProductCode());
+		logger.info("ProductName: " + ticket.getItemname());
+		logger.info("Liters: " + ticket.getQuantityLtsString());
+		logger.info("Galones:" + ticket.getQuantityGal());
+		logger.info("Notes: " + ticket.getNotes());
+		logger.info("Released: " + ticket.getReleasedBy());
+		//logger.info("NewAirplane(Y/N): " + ticket.getNewAirplane());
+		logger.info("NewAirplaneCode: " + ticket.getNewAirplaneCode());
+		logger.info("Date: " + ticket.getDatetimeString());
+		logger.info("Codigo Logged User:" + ticket.getUser().getId());
+		
+		
+		return mobileTicket;
+	}  
+	
+	
+	
+	
+	/**
+	 * Retorna un ticket dado su id
+	 * @return 
+	 */
+	public Ticket getElement(String id) throws LogicException{
+		Ticket ticket = null;
+		
+		try{
+			ticket = ticketDao.findById(Integer.parseInt(id));
+		
+		}catch(PersistenceException e){
+			logger.error("Ocurrio un error al intentar consultar el ticket: "+id, e);
+			throw new LogicException(e.getMessage(), e);
+		}catch(Exception e){
+			logger.error("Ocurrio un error al intentar actualizar el ticket: "+id, e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return ticket;	
+	}
+	/**
+	 * Gestiona la modificaci�n de un ticket existente en el sistema.
+	 * @param t Ticket a modificar
+	 */
+	public String update(Ticket t) {
+		String result = null;
+		try{
+			User userTicket = userDao.findById(t.getIdUser());
+			
+			if(t.getOperation().equals("Modify Ticket")){
+				
+				try{
+					t.setStatus(Constants.UPDATE_NOTIFICATION);
+					
+					BusinessPartner bp = businessPartnerDao.findById(t.getProviderCode());
+					Product pro = productDao.findById(t.getProductCode());
+					
+					t.setItemname(pro.getItemname());
+					t.setCardnameProvider(bp.getCardname());
+					t.setQuantityLts(new BigDecimal(t.getQuantityLtsString()));
+					
+					if(t.getQuantityLts()!=null){
+						
+						
+						t.setQuantityGalString(""+(double)(t.getQuantityLts().doubleValue() / Constants.GALON_CONVERSION));
+						
+						double d = (double)(t.getQuantityLts().doubleValue()/ Constants.GALON_CONVERSION);
+						
+						BigDecimal dd = new BigDecimal(d);
+						dd = dd.movePointRight(6);
+						dd = new BigDecimal(dd.longValue());
+						dd = dd.movePointLeft(6);
+					
+						t.setQuantityGal(dd);
+					}
+						
+					ticketDao.update(t);
+					result =  MessageConstants.TICKET_UPDATE_SUCCESS;
+					
+					logger.info("Se ha actualizado el ticket: "+t.getTicketCode());
+					
+					if(userTicket.getSupervisorUser().getEmail()!=null){
+						
+						try{
+							Map<String, Object> p = new HashMap<String, Object>();
+							p.put("ticket", t);
+							mailSender.sendMimeMessage( new String[]{userTicket.getSupervisorUser().getEmail()},
+													" Ticket Update Notification",
+													Constants.TICKET_MODIFY_TEMPLATE,p);
+							logger.info("El email de notificacion de modificacion de Ticket.");
+						}catch(Throwable e){
+							logger.error("No se logro enviar el correo de notificacion de modificacion de Ticket. Para el ticket:" +
+									" Code: " + t.getTicketCode(), e);
+						}
+					}
+					
+				}catch(Exception e){
+					logger.error("Ocurrio un error al intentar actualizar el ticket: "+t.getTicketCode(), e);
+					result = MessageConstants.TICKET_UPDATE_ERROR;
+				}
+								
+			}else if(t.getOperation().equals("Cancel Ticket")){
+				
+				try{
+					
+					ticketDao.updateStatus(t.getId(), Constants.CANCEL_NOTIFICATION);
+					result =  MessageConstants.TICKET_CANCEL_SUCCESS;
+					
+					logger.info("Se ha anulado el ticket: "+t.getTicketCode());
+					
+					if(userTicket.getSupervisorUser().getEmail()!=null){
+						try{
+							Map<String, Object> p = new HashMap<String, Object>();
+							p.put("ticket", t);
+							mailSender.sendMimeMessage(new String[]{userTicket.getSupervisorUser().getEmail()},
+												" Ticket Cancel Notification",
+													Constants.TICKET_CANCEL_TEMPLATE,p);
+							logger.info("El email de notificacion de cancelacion de Ticket");
+						}catch(Throwable e){
+							logger.error("No se logro enviar el correo de notificacion de anulacion de Ticket. Para el ticket: " + t.getTicketCode(), e);
+						}
+					}
+
+				}catch(PersistenceException e){
+					logger.error("Ocurrio un error al intentar anular el ticket: "+t.getTicketCode(), e);
+					result = MessageConstants.TICKET_CANCEL_ERROR;
+				}
+				
+				result =  MessageConstants.TICKET_CANCEL_SUCCESS;
+			}
+			
+			
+		}catch(PersistenceException e){
+			logger.error("Ocurrio un error al intentar anular el ticket: "+t.getTicketCode(), e);
+			result = MessageConstants.TICKET_CANCEL_ERROR;
+		}
+		return result;
+	}
+	
+	/**
+	 * Retorna una lista con los tickets del sistema, para paginaci�n. 
+	 * @param s Objeto que encapsula los parametros de b�squeda
+	 * @param page Indice que indica desde donde se realizara la busqueda
+	 * @return ResultList Objeto que encapsula la lista resultado, 
+	 * e informacion relacionada con la consulta
+	 * @throws LogicException
+	 */
+	public ResultList getResultList(Search s, int page) throws LogicException {
+		
+		ResultList list = null;
+
+		try{
+
+			list = ticketDao.find(s, ((page-1)*s.getNumRows()));
+		
+			if(s.getCodeClient()!=null && !s.getCodeClient().equals("0")){
+			
+				BusinessPartner bp = businessPartnerDao.findById(s.getCodeClient());
+				list.setBusinessPartner(bp);
+			}
+			
+		}catch(PersistenceException e){
+			logger.error("Ocurrio un error al realizar la busqueda de los tickets", e);
+			throw new LogicException(e.getMessage(), e);
+		}catch(Exception e){
+			logger.error("Ocurrio un error al realizar la busqueda de los tickets", e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return list;	
+	}
+	
+	/**
+	 * Retorna una coleccion con las listas requeridas para llenar los combos
+	 * en la vista de Modificar Boleta
+	 * @return
+	 */
+	public Hashtable<String, Object> loadLists() throws LogicException {
+		
+		Hashtable<String, Object> data = new Hashtable<String, Object>();
+		
+		
+		try{
+	    	/* Se invocan a los metodos de persistencia que realizan la busqueda de  
+    		 * los roles a ser mostrados en el combo de roles,
+    		 * los usuarios a ser mostrados en el combo de supervisores,
+    		 * y los clientes a ser mostrados en el combo de clientes */
+	      	List<Airport> airports = airportDao.findAll();
+	    	List<BusinessPartner> providers = businessPartnerDao.findByType(Constants.SUPLIER);
+	    	List<BusinessPartner> customers = businessPartnerDao.findByType(Constants.CUSTOMER);
+	    	List<Product> products = productDao.findAll();
+	    	List<Airplane> airplanes = airplaneDao.findAll();
+	    	
+			data.put("airports", airports);
+			data.put("providers", providers);
+			data.put("products", products);
+			data.put("customers", customers);
+			data.put("airplanes", airplanes);
+
+		}catch(PersistenceException e){
+			logger.error("Ocurrio un error al intentar obtener las listas de los combos de la vista de modificacion de Tickets", e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return data;	
+	}
+	
+	
+	/**
+	 * Retorna una coleccion con las listas requeridas para llenar los combos
+	 * en la vista de busqueda de boletas
+	 * @return
+	 */
+	public Hashtable<String, Object> loadSearchList() throws LogicException {
+		
+		Hashtable<String, Object> data = new Hashtable<String, Object>();
+		
+	
+		try{
+			List<BusinessPartner> clients = businessPartnerDao.findByType(Constants.CUSTOMER);
+			List<BusinessPartner> providers = businessPartnerDao.findByType(Constants.SUPLIER);
+			List<Lov> status = lovDao.getValues(Constants.LOV_STATUS_TICKET);
+			List<Airport> airports = airportDao.findAll();
+			List<Airplane> airplanes = airplaneDao.findAll();
+			
+			data.put("providers", providers);
+			data.put("airports", airports);
+			data.put("clients", clients);
+			data.put("airplanes", airplanes);
+			data.put("status", status);
+			
+
+		}catch(PersistenceException e){
+			logger.error("Ocurrio un error al intentar obtener las listas de los combos de busqueda de Tickets", e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		catch(Exception e){
+			logger.error("Ocurrio un error al intentar obtener las listas de los combos de busqueda de Tickets", e);
+			throw new LogicException(e.getMessage(), e);
+		}
+		return data;	
+	}
+
+	public List<Ticket> getList() throws LogicException{return null;}
+
+	public String delete(String id) { return null;}
+	
+	public BusinessPartnerDAO getBusinessPartnerDao() {
+		return businessPartnerDao;
+	}
+
+	public void setBusinessPartnerDao(
+			BusinessPartnerDAO businessPartnerDao) {
+		this.businessPartnerDao = businessPartnerDao;
+	}
+
+	public LovDAO getLovDao() {
+		return lovDao;
+	}
+
+	public void setLovDao(LovDAO lovDao) {
+		this.lovDao = lovDao;
+	}
+
+	public ProductDAO getProductDao() {
+		return productDao;
+	}
+
+	public void setProductDao(ProductDAO productDao) {
+		this.productDao = productDao;
+	}
+
+	public AirportDAO getAirportDao() {
+		return airportDao;
+	}
+
+	public void setAirportDao(AirportDAO airportDao) {
+		this.airportDao = airportDao;
+	}
+
+	public TicketDAO getTicketDao() {
+		return ticketDao;
+	}
+
+	public void setTicketDao(TicketDAO ticketDao) {
+		this.ticketDao = ticketDao;
+	}
+
+	public SpringMailSender getMailSender() {
+		return mailSender;
+	}
+
+	public void setMailSender(SpringMailSender mailSender) {
+		this.mailSender = mailSender;
+	}
+	public UserDAO getUserDao() {
+		return userDao;
+	}
+	public void setUserDao(UserDAO userDao) {
+		this.userDao = userDao;
+	}
+
+
+	public AirplaneDAO getAirplaneDao() {
+		return airplaneDao;
+	}
+
+	public void setAirplaneDao(AirplaneDAO airplaneDao) {
+		this.airplaneDao = airplaneDao;
+	}
+
+	public ServiceTicket getServiceTicket() {
+		return serviceTicket;
+	}
+
+	public void setServiceTicket(ServiceTicket serviceTicket) {
+		this.serviceTicket = serviceTicket;
+	}
+}

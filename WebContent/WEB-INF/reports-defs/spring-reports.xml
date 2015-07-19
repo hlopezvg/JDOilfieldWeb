@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	   	http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- BEANS FOR REPORTING -->
+	<bean id="reportTicket" 
+		class="com.jdoilfield.operationalsystem.reports.ReportTicket">
+		<property name="ticketDao">
+			<ref bean="ticketDao" />
+		</property>
+		<property name="domesticClientReportDao">
+			<ref bean="domesticClientReportDao" />
+		</property>
+		<property name="consumerReportDao">
+			<ref bean="consumerReportDao" />
+		</property>
+	</bean>
+	 <!--IATA INVOICE  -->
+	<bean id="generateIATAXMLInvoice_2_0_2" 
+		class="com.jdoilfield.operationalsystem.iata.GenerateIATAXMLInvoice_2_0_2">
+	  <property name="iataInvoiceDao">
+			<ref bean="iataInvoiceDao" />
+		</property>
+	</bean>
+</beans>
+	

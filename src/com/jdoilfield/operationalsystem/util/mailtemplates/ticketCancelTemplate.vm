@@ -1,0 +1,47 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>J&DOilfield Operational System</title>
+    <style type="text/css">
+<!--
+.celdaTipo {
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+	text-transform: capitalize;
+	color: #FFFFFF;
+	background-color: #0033CC;
+	text-align: left;
+	display: table-cell;
+}
+.piepag {
+	font-family: "Courier New", Courier, mono;
+	font-size: 12px;
+	font-weight: normal;
+}
+.tabla {
+	background-color: #CCCCCC;
+	border: thin solid #000000;
+}
+.titulo {
+	font-weight: bold;
+	text-align: center;
+}
+-->
+    </style>
+</head>
+<body>
+<h3 class="titulo">J&amp;DOilfield Operational System</h3>
+<h4>Notificacion de Anulaci&oacute;n de Ticket </h4>
+<p>Este mensaje se ha generado autom&aacute;ticamente para informar que se ha anulado la boleta con el c&oacute;digo: <strong>${ticket.ticketCode}</strong></p>
+<p>
+El siguiente paso que usted debe ejecutar es registrar la anulaci&oacute;n en su Sistema administrativo.</p>
+
+<hr>
+<p class="piepag">
+ESTE DOCUMENTO FUE GENERADO AUTOMATICAMENTE.
+POR FAVOR NO RESPONDER A ESTE CORREO <br>
+THIS DOCUMENT IS AUTOMATICALLY GENERATED.
+PLEASE DO NOT RESPOND TO THIS MAIL </p>
+</body>
+</html>

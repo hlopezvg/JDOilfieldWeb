@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	   	http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/tx
+    	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+    	
+    <!-- Datasources -->
+    
+    <bean id="dataSourcePostgresql" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/jdoilfield" />
+	</bean>
+    
+    <bean id="dataSourceSQLServer" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/BussinessOne" />
+	</bean>
+	
+	<!-- *************************************************************************** -->
+
+	<bean id="entityManagerFactorySQLServer" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSourceSQLServer" />
+		<property name="jpaVendorAdapter">
+			<!-- <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">-->
+			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+				<property name="showSql" value="true" />
+				<property name="generateDdl" value="false" />
+				<property name="databasePlatform" value="org.hibernate.dialect.SQLServerDialect" />
+			</bean>
+		</property>
+		<property name="persistenceUnitName" value="SQLServerUnit" />
+	</bean>
+	
+	<bean id="entityManagerFactoryPostgresql" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSourcePostgresql" />
+		<property name="jpaVendorAdapter">
+			<!-- <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">-->
+			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+				<property name="showSql" value="true" />
+				<property name="generateDdl" value="false" />
+				<property name="databasePlatform" value="org.hibernate.dialect.PostgreSQLDialect" />
+			</bean>
+		</property>
+		<property name="persistenceUnitName" value="PostgresqlUnit" />
+	</bean>
+	
+	<bean id="transactionManagerSQLServer" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactorySQLServer" />
+		<property name="dataSource" ref="dataSourceSQLServer" />
+	</bean>
+	
+	<bean id="transactionManagerPostgresql" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryPostgresql" />
+		<property name="dataSource" ref="dataSourcePostgresql" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManagerPostgresql" />
+	<tx:annotation-driven transaction-manager="transactionManagerSQLServer" />
+
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+	<!-- ******************DEFINION DE BEANS DE PERSISTENCIA ********************* -->
+	
+	<bean id="accountDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.AccountDAOImpl"></bean>
+	<bean id="accountStmtDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.AccountStmtDAOImpl"></bean>
+	<bean id="airplaneDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.AirplaneDAOImpl"></bean>
+	<bean id="airportDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.AirportDAOImpl"></bean>
+	<bean id="bankDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.BankDAOImpl"></bean>
+	<bean id="businessPartnerDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.BusinessPartnerDAOImpl"></bean>
+	<bean id="componentDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.ComponentDAOImpl"></bean>
+	<bean id="currencyDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.CurrencyDAOImpl"></bean>
+	<bean id="contactDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.ContactDAOImpl"></bean>
+	<bean id="documentDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.DocumentDAOImpl"></bean>
+	<bean id="documentTypeDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.DocumentTypeDAOImpl"></bean>
+	<bean id="fuelRequestDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.FuelRequestDAOImpl"></bean>
+	<bean id="lovDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.LovDAOImpl"></bean>
+	<bean id="paymentDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.PaymentDAOImpl"></bean>
+	<bean id="remotePaymentDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.RemotePaymentDAOImpl"></bean>
+	<bean id="productDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.ProductDAOImpl"></bean>
+	<bean id="priceDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.PriceDAOImpl"></bean>
+	<bean id="roleComponentDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.RoleComponentDAOImpl"></bean>
+	<bean id="roleDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.RoleDAOImpl"></bean>
+	<bean id="ticketDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.TicketDAOImpl"></bean>
+	<bean id="ticketHistoryDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.TicketHistoryDAOImpl"></bean>
+	<bean id="userDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.UserDAOImpl"></bean>
+	<!-- ESPECIAL AREA FOR REPORTS -->
+	<bean id="domesticClientReportDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.DomesticClientReportDAOImpl"></bean>
+	<bean id="consumerReportDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.ConsumerReportDAOImpl"></bean>
+	<!-- ESPECIAL AREA FOR IATA INVOICE -->
+	<bean id="iataInvoiceDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.IataInvoiceDAOImpl"></bean>
+	<!-- SOAP SERVICES  ESPECIAL AREA FOR FUEL CARD PROVIDERS -->
+	<bean id="fuelCardDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.FuelCardDAOImpl"></bean>
+	<!-- SOAP SERVICES  REMOTE TICKET  -->
+	<bean id="remoteTicketDao" class="com.jdoilfield.operationalsystem.persistence.hibernate.impl.RemoteTicketDAOImpl"></bean>
+	
+</beans>

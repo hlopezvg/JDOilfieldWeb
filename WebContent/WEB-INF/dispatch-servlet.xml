@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	   	http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		
+		http://www.springframework.org/schema/tx
+    	http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+		
+    
+
+	<bean id="tilesConfigurer" class="com.jdoilfield.operationalsystem.tiles.SpringTilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/tiles-defs/templates.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	  <bean class="org.springframework.web.servlet.view.XmlViewResolver">
+				<property name="location">
+					<value>/WEB-INF/reports-defs/spring-reports.xml</value>
+				</property>
+	</bean>
+	
+	<bean id="tilesViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+	</bean>
+	
+<!-- 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
+<!-- 		<property name="prefix"> -->
+<!-- 			<value>/WEB-INF/jsp/</value> -->
+<!-- 		</property> -->
+<!-- 		<property name="suffix"> -->
+<!-- 			<value>.jsp</value> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="messages" />
+	</bean>
+	
+	<!-- ************* SIGN IN - INDEX ************* -->
+	<bean name="/index.htm" class="com.jdoilfield.operationalsystem.controller.IndexController">
+		<property name="successView" value="index" />
+	</bean>
+	
+	<!-- ************* HOME ************* -->
+	<bean name="/home.htm" class="com.jdoilfield.operationalsystem.controller.HomeController">
+		<property name="userManager">
+			<ref bean="userManager" />
+		</property>
+		<property name="roleManager">
+			<ref bean="roleManager" />
+		</property>
+		<property name="businessPartnerManager">
+			<ref bean="businessPartnerManager" />
+		</property>
+	</bean>
+	
+	<!-- ************* PRICE ************* -->
+	<bean name="/prices.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="prices" />
+		<property name="manager">
+			<ref bean="priceManager" />
+		</property>
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.SearchValidator" />
+		</property>
+	</bean>
+	
+	<!-- ************* TICKETS ************* -->
+	<bean name="/tickets.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="tickets" />
+		<property name="manager">
+			<ref bean="ticketManager" />
+		</property>
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.SearchValidator" />
+		</property>
+	</bean>
+	<bean name="/ticketDetail.htm" class="com.jdoilfield.operationalsystem.controller.DetailController">
+		<property name="successView" value="ticketDetail" />
+		<property name="manager">
+			<ref bean="ticketManager" />
+		</property>
+   </bean>
+   
+  <bean name="/ticketAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+        <property name="sessionForm" value="true"/>
+        <property name="commandName"><value>ticket</value></property>
+        <property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Ticket"/>
+      	<property name="validator">
+            <bean class="com.jdoilfield.operationalsystem.validator.TicketValidator"/>
+        </property>
+        <property name="successView" value="ticketAdd.htm"/>
+        <property name="manager"><ref bean="ticketManager"/></property>
+    </bean>
+    
+	<bean name="/ticketUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName"><value>ticket</value></property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Ticket" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.TicketValidator" />
+		</property>
+		<property name="successView" value="tickets.htm" />
+		<property name="manager"><ref bean="ticketManager" />
+		</property>
+	</bean>
+	
+	<!-- ************* TICKET REPORT ************* -->
+	<bean name="/reportTicket.htm" class="com.jdoilfield.operationalsystem.controller.ExportReportController" >
+	
+	</bean>
+		
+		
+	
+	<!-- ************* ACCOUNT_STMT************* -->
+	<bean name="/accountStmt.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="accountStmt" />
+		<property name="manager">
+			<ref bean="accountStmtManager" />
+		</property>
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.SearchValidator" />
+		</property>
+	</bean>
+	
+	<!-- ************* DOCUMENT ************* -->
+	<bean name="/documents.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="documents" />
+		<property name="manager">
+			<ref bean="documentManager" />
+		</property>
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.SearchValidator" />
+		</property>
+	</bean>
+	<bean name="/documentDetail.htm" class="com.jdoilfield.operationalsystem.controller.DetailController">
+		<property name="manager">
+			<ref bean="documentManager" />
+		</property>
+		<property name="successView" value="documentDetail" />
+	</bean>
+	
+	<!-- ************* PAYMENTS ************* -->
+	<bean name="/payments.htm" class="com.jdoilfield.operationalsystem.controller.PaymentController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.SearchValidator" />
+		</property>
+		<property name="successView" value="payments" />
+		<property name="manager">
+			<ref bean="paymentManager" />
+		</property>
+	</bean>
+	<bean name="/paymentRegistry.htm" class="com.jdoilfield.operationalsystem.controller.PaymentRegistryController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>payment</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Payment" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.PaymentValidator" />
+		</property>
+		<property name="successView" value="payments.htm" />
+		<property name="manager">
+			<ref bean="paymentManager" />
+		</property>
+	</bean>
+	
+	<!-- ************* FUELREQUEST ************* -->
+	<bean name="/fuelRequest.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="fuelRequest" />
+		<property name="manager">
+			<ref bean="fuelRequestManager" />
+		</property>
+		<property name="searchFuelRequest" value="searchFuelRequest"></property>
+	</bean>
+	<bean name="/fuelRequestUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>fuelRequest</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.FuelRequest" />
+		<property name="successView" value="fuelRequest.htm" />
+		<property name="manager">
+			<ref bean="fuelRequestManager" />
+		</property>
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.FuelRequestValidator" />
+		</property>
+		<property name="behaviour" value="fuelRequest"></property>
+	</bean>
+	<bean name="/fuelRequestHistory.htm" class="com.jdoilfield.operationalsystem.controller.FuelRequestHistoryController">
+		<property name="manager">
+			<ref bean="fuelRequestManager" />
+		</property>
+		<property name="successView" value="fuelRequestHistory" />
+	</bean>
+	<bean name="/fuelRequestPreview.htm" class="com.jdoilfield.operationalsystem.controller.DetailController">
+		<property name="successView" value="fuelRequestPreview" />
+		<property name="manager">
+			<ref bean="fuelRequestManager" />
+		</property>
+	</bean>
+		
+	<bean name="/fuelRequestInactivate.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController">
+		<property name="manager">
+			<ref bean="fuelRequestManager" />
+		</property>
+		<property name="successView" value="fuelRequest.htm" />
+	</bean>
+	
+	<!-- ************* BALANCE ************* -->
+	<bean name="/balances.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="balances" />
+		<property name="manager">
+			<ref bean="balanceManager" />
+		</property>
+	</bean>
+	
+	<!-- ************* AIRPORT ADMIN ************* -->
+	<bean name="/airports.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="airports" />
+		<property name="manager">
+			<ref bean="airportManager" />
+		</property>
+	</bean>
+	<bean name="/airportAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>airport</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Airport" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.AirportValidator" />
+		</property>
+		<property name="successView" value="airports.htm" />
+		<property name="manager">
+			<ref bean="airportManager" />
+		</property>
+	</bean>
+	<bean name="/airportUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>airport</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Airport" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.AirportValidator" />
+		</property>
+		<property name="successView" value="airports.htm" />
+		<property name="manager">
+			<ref bean="airportManager" />
+		</property>
+	</bean>
+	
+	<bean name="/airportDelete.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController">
+		<property name="manager">
+			<ref bean="airportManager" />
+		</property>
+		<property name="successView" value="airports.htm" />
+	</bean>
+	
+	<!-- ************* ROL ADMIN ************* -->
+	<bean name="/roles.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="manager">
+			<ref bean="roleManager" />
+		</property>
+		<property name="successView" value="roles.htm" />
+	</bean>
+	<bean name="/roleUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>role</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Role" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.RoleValidator" />
+		</property>
+		<property name="successView" value="roles.htm" />
+		<property name="manager">
+			<ref bean="roleManager" />
+		</property>
+	</bean>
+	
+	<!-- ************* USER ADMIN ************* -->
+	<bean name="/users.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="users" />
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+	</bean>
+	<bean name="/userAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>userAdd</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.User" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.UserValidator" lazy-init="default" autowire="default"
+				dependency-check="default" />
+		</property>
+		<property name="successView" value="users.htm" />
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+	</bean>
+	<bean name="/userUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>userUpdate</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.User" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.UserUpdateValidator" />
+		</property>
+		<property name="successView" value="users.htm" />
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+	</bean>
+	
+	<bean name="/userDelete.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController">
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+		<property name="successView" value="users.htm" />
+	</bean>
+	
+	<!-- ************* CHANGE PASSWORD ************* -->
+	<bean name="/changePassword.htm" class="com.jdoilfield.operationalsystem.controller.ChangePasswordController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>passwordChange</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.PasswordChange" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.PasswordValidator" />
+		</property>
+		<property name="successView" value="changePassword" />
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+	</bean>
+
+	
+	
+	<!-- ************* OLVIDO DEL PASSWORD ************* -->
+	<bean name="/forgotPassword.htm" class="com.jdoilfield.operationalsystem.controller.PasswordRecoveryController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>forgotPassword</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.PasswordRecovery" />
+		<property name="manager">
+			<ref bean="userManager" />
+		</property>
+	</bean>
+	
+	<bean name="/forgotPassword_contact_error.htm" class="com.jdoilfield.operationalsystem.controller.PasswordRecoveryController"/>
+	<bean name="/forgotPassword_contact_success.htm" class="com.jdoilfield.operationalsystem.controller.PasswordRecoveryController"/>
+	    
+	<!-- ************* AC/NUMBER ************* -->
+	<!-- <bean name="/acNumber.htm" class="com.jdoilfield.operationalsystem.controller.SearchController"> <property name="sessionForm" 
+		value="true"/> <property name="commandName"><value>search</value></property> <property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search"/> 
+		<property name="successView" value="acNumber"/> <property name="manager"><ref bean="acNumberManager"/></property> 
+		</bean> <bean name="/acNumberAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController"> <property 
+		name="sessionForm" value="true"/> <property name="commandName" ><value>acNumber</value></property> <property name="commandClass" 
+		value="com.jdoilfield.operationalsystem.domain.local.AcNumber"/> <property name="validator"> <bean class="com.jdoilfield.operationalsystem.validator.AcNumberValidator"/> 
+		</property> <property name="successView" value="acNumber.htm"/> <property name="manager"><ref bean="acNumberManager"/></property> 
+		</bean> <bean name="/acNumberUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController"> <property 
+		name="sessionForm" value="true"/> <property name="commandName" ><value>acNumber</value></property> <property name="commandClass" 
+		value="com.jdoilfield.operationalsystem.domain.local.AcNumber"/> <property name="validator"> <bean class="com.jdoilfield.operationalsystem.validator.AcNumberValidator"/> 
+		</property> <property name="successView" value="acNumber.htm"/> <property name="manager"><ref bean="acNumberManager"/></property> 
+		</bean> <bean name="/acNumberDelete.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController"> <property 
+		name="manager"><ref bean="acNumberManager"/></property> <property name="successView" value="acNumber.htm"/> </bean> -->
+	
+	<!-- ************* PAYMENT ************* -->
+	
+	
+	
+
+	
+	<bean name="/roleAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>role</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.local.Role" />
+		<property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.RoleValidator" />
+		</property>
+		<property name="successView" value="roles.htm" />
+		<property name="manager">
+			<ref bean="roleManager" />
+		</property>
+	</bean>
+	
+	<bean name="/roleDelete.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController">
+		<property name="manager">
+			<ref bean="roleManager" />
+		</property>
+		<property name="successView" value="roles.htm" />
+	</bean>
+	
+	<!-- PAGINAS DE PROVEDORES -->
+	<bean name="/noCredit.htm" class="com.jdoilfield.operationalsystem.controller.AddController">	
+	</bean>
+	
+	<bean name="/creditFC.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+	</bean>
+	
+	<!-- ************* FUEL CARD ADMIN ************* -->
+	<bean name="/fuelCards.htm" class="com.jdoilfield.operationalsystem.controller.SearchController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>search</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.Search" />
+		<property name="successView" value="fuelCards" />
+		<property name="manager">
+			<ref bean="fuelCardManager" />
+		</property>
+	</bean>
+	<bean name="/fuelCardAdd.htm" class="com.jdoilfield.operationalsystem.controller.AddController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>fuelCardAdd</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.remote.FuelCard" />
+		<!-- <property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.FuelCardValidator" />
+		</property>-->
+		<property name="successView" value="fuelCards.htm" />
+		<property name="manager">
+			<ref bean="fuelCardManager" />
+		</property>
+	</bean>
+	<bean name="/fuelCardUpdate.htm" class="com.jdoilfield.operationalsystem.controller.UpdateController">
+		<property name="sessionForm" value="true" />
+		<property name="commandName">
+			<value>fuelCardUpdate</value>
+		</property>
+		<property name="commandClass" value="com.jdoilfield.operationalsystem.domain.remote.FuelCard" />
+		<!--  <property name="validator">
+			<bean class="com.jdoilfield.operationalsystem.validator.FuelCardValidator" /> 
+		</property>-->
+		<property name="successView" value="fuelCards.htm" />
+		<property name="manager">
+			<ref bean="fuelCardManager" />
+		</property>
+		<property name="behaviour" value="fuelCardCodeUpdate"></property>
+	</bean>
+	
+	<bean name="/fuelCardDelete.htm" class="com.jdoilfield.operationalsystem.controller.DeleteController">
+		<property name="manager">
+			<ref bean="fuelCardManager" />
+		</property>
+		<property name="successView" value="fuelCards.htm" />
+	</bean>
+	<!-- ***********************END OF FUELCARD DECLARATION ********************** -->	
+	
+	<!-- ************* PAGINAS DE ERROR ************* -->
+	<bean name="/accessDeniedError.htm" class="com.jdoilfield.operationalsystem.controller.SimpleController">
+		<property name="successView" value="accessDeniedError" />
+	</bean>
+	<bean name="/generalError.htm" class="com.jdoilfield.operationalsystem.controller.SimpleController">
+		<property name="successView" value="generalError" />
+	</bean>  
+
+<!-- ************* CONFIGURATION TAB ************* -->
+	<bean name="/configurations.htm" class="com.jdoilfield.operationalsystem.controller.SimpleController">
+		<property name="successView" value="configurations" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManagerPostgresql" />
+	<tx:annotation-driven transaction-manager="transactionManagerSQLServer" />
+</beans>
+
+
+
